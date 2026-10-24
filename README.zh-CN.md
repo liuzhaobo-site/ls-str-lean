@@ -2,6 +2,10 @@
 
 对应 Zhaobo Liu 的论文 **LS-Based Self-Tuning Regulation with Unknown Input Gain for Arbitrary Bounded References**。
 
+**[论文 PDF](paper/main.pdf)** · [LaTeX 源码](paper/main.tex) · [论文压缩包](paper/LS_STR_manuscript-2026-10-24.zip)
+
+论文版本：**2026-10-24**。此版本晚于下方证明包中的论文快照；后续修订与 Lean 代码的对应关系尚未重新核对。
+
 **[下载完整证明 ZIP](https://github.com/liuzhaobo-site/ls-str-lean/releases/download/proofs-2026-10-24/LS_STR_gram_covariance_v2-2026-10-24.zip)** · **[发布记录与校验文件](https://github.com/liuzhaobo-site/ls-str-lean/releases/tag/proofs-2026-10-24)** · [English](README.md)
 
 ZIP 包含完整 Lean 源码、固定 LaTeX 原稿、原文与证明步骤映射、版本锁定、最终审计日志及复现工具。

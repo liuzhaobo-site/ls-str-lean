@@ -2,6 +2,10 @@
 
 Formalization archive for **LS-Based Self-Tuning Regulation with Unknown Input Gain for Arbitrary Bounded References** by Zhaobo Liu.
 
+**[Read the current manuscript](paper/main.pdf)** · [LaTeX source](paper/main.tex) · [Manuscript ZIP](paper/LS_STR_manuscript-2026-10-24.zip)
+
+Manuscript version: **2026-10-24**. This revision is later than the manuscript snapshot in the proof archive below; its correspondence with the Lean code has not been rechecked.
+
 **[Download the proof archive](https://github.com/liuzhaobo-site/ls-str-lean/releases/download/proofs-2026-10-24/LS_STR_gram_covariance_v2-2026-10-24.zip)** · **[Release and checksum](https://github.com/liuzhaobo-site/ls-str-lean/releases/tag/proofs-2026-10-24)** · [中文说明](README.zh-CN.md)
 
 The ZIP contains the complete Lean source, manuscript snapshot, detailed LaTeX/Lean correspondences, pinned dependency manifests, final audit logs, and reproduction tools. The sources are distributed inside the archive; this repository provides the release entry point.

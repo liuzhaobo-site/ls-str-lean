@@ -1,0 +1,1270 @@
+\documentclass[11pt,reqno]{amsart}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage[a4paper,margin=28mm]{geometry}
+\usepackage{microtype}
+\usepackage{enumitem,needspace}
+\usepackage[hidelinks,pdfencoding=auto]{hyperref}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\R}{\mathbb R}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Prob}{\mathbb P}
+\newcommand{\F}{\mathcal F}
+\newcommand{\thh}{\widehat\theta}
+\newcommand{\bhat}{\widehat b}
+\newcommand{\ahat}{\widehat a}
+\newcommand{\ph}{\varphi}
+\newcommand{\phc}{\check{\varphi}}
+\newcommand{\etac}{\widetilde{\vartheta}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\as}{\quad\text{a.s.}}
+\newcommand{\ind}{\mathbf 1}
+\setlist[enumerate]{label=(\roman*),leftmargin=*,itemsep=2pt,topsep=4pt}
+\setlength{\emergencystretch}{1.5em}
+\allowdisplaybreaks[1]
+\title[LS-Based Self-Tuning Regulation with Unknown Input Gain]{LS-Based Self-Tuning Regulation with Unknown Input Gain for Arbitrary Bounded References}
+\author{Zhaobo Liu}
+\address{Institute for Advanced Study, Shenzhen University, Shenzhen 518060, China}
+\email{liuzhaobo@szu.edu.cn}
+\subjclass[2020]{93E35, 93E24, 93C40, 93E12}
+\keywords{Stochastic adaptive control, self-tuning regulation, recursive least squares, minimum-variance tracking, unknown input gain}
+\hypersetup{pdftitle={LS-Based Self-Tuning Regulation with Unknown Input Gain for Arbitrary Bounded References},pdfauthor={Zhaobo Liu}}
+\date{}
+\begin{document}
+\begin{abstract}
+We study the LS-based self-tuning regulator with unknown input gain for arbitrary bounded references. Previous analyses using least squares estimates directly with unknown gain establish guarantees under reference information growth conditions or outside a Lebesgue null set of plant parameters. We prove almost sure stability and optimal tracking for every minimum-phase plant with at least one plant polynomial attaining its prescribed degree bound and every bounded reference, provided the recursion is well defined. No coprimeness or growth of reference information is required. The noise is a martingale difference sequence with constant positive conditional variance and a conditional moment of some order greater than two bounded uniformly in time almost surely. The regulator uses ordinary least squares estimates in certainty-equivalent control without gain adjustment or added probing. The average input and output energy remains bounded, and the average squared tracking error converges to the noise variance almost surely. Failure of optimal tracking forces large inputs. The resulting information gives a conditional probability of subsequent stability and optimal tracking bounded away from zero, contradicting convergence of the conditional failure probability to one.
+\end{abstract}
+\maketitle
+% sections/01_introduction
+\section{Introduction}\label{sec:introduction}
+We study minimum variance tracking for a single-input single-output system with unknown coefficients
+\begin{equation}\label{eq:plant}
+ A(z)y_{n+1}=B(z)u_n+w_{n+1},\qquad n\ge0,
+\end{equation}
+where $y_n$, $u_n$ and $w_n$ denote the output, input and process noise, and $z$ is the backward shift. The plant polynomials are
+\begin{equation*}
+ A(z)\triangleq 1+\sum_{i=1}^p a_i z^i,\qquad
+ B(z)\triangleq \sum_{j=1}^q b_jz^{j-1},
+\end{equation*}
+with fixed integer order bounds $p\ge0$ and $q\ge1$. All coefficients are unknown, with $b_1\ne0$. Given a bounded reference, the objective is to keep the average input and output energy bounded and attain the minimum asymptotic average squared tracking error available with known plant coefficients. The self-tuning regulator (STR) of {\AA}str{\"o}m and Wittenmark~\cite{AW73} combines least squares (LS) estimation with certainty-equivalent (CE) control. Their algorithm used a prescribed input gain, and their asymptotic analysis assumed that the estimates converge to limits. In the LS-based STR, feedback determines the regressors used by LS, and the estimates determine subsequent inputs~\cite{LW82}.
+
+Several approaches establish stability and optimal tracking by modifying the estimator or controller. These include stochastic gradient estimation~\cite{GRC80}, modified LS~\cite{SG82,Chen84} and weighted LS~\cite{Bercu95}. Probing signals supply information for estimation and permit optimal tracking together with parameter consistency~\cite{CG87,LW87,BV10PE}. More recently, probing combined with input clipping has yielded finite time regret bounds for minimum variance regulation~\cite{Singh24}. Weighted LS and adjustments to the estimates used in feedback also permit stability and optimal tracking under conditionally heteroscedastic noise~\cite{ZG21}.
+
+For the LS-based STR with known input gain $b_1$, Guo and Chen~\cite[Theorem~1]{GC91} established stability and optimal tracking of bounded references under minimum-phase and noise assumptions. Guo~\cite[Theorem~4.1]{Guo95} further quantified the cumulative tracking residuals. When LS also estimates $b_1$, the control law divides by its estimate, so a small gain estimate can produce a large input even when the reference and past observations are moderate. Guo and Chen~\cite[Theorem~2]{GC91} obtained stability and optimal tracking for bounded references by adjusting the gain estimate used in feedback.
+
+For the recursion that uses the LS estimate directly, Kumar~\cite{Kumar90} used Bayesian embedding under i.i.d. Gaussian noise to prove optimal tracking of bounded deterministic references for true parameters outside a Lebesgue null set. Under coprimeness of $A$ and $B$ and the stated plant and noise assumptions, Guo~\cite[Theorem~4.2]{Guo94}, \cite[Theorem~7.2]{Guo95} established stability, optimal tracking and parameter consistency when reference information grows sufficiently fast. We therefore ask whether the ordinary LS-based STR with unknown input gain achieves stability and optimal tracking for each admissible plant and each bounded reference, without requiring the reference to supply information for parameter estimation.
+
+We prove that the ordinary LS-based STR keeps the average input and output energy bounded and makes the average squared tracking error converge to the noise variance almost surely. The result holds for every minimum-phase plant with $\deg(A-1)=p$ or $\deg B=q-1$ and every bounded reference, provided the recursion is well defined. The noise is a martingale difference sequence with constant positive conditional variance and a conditional moment of some order greater than two bounded uniformly in time almost surely. Neither coprimeness nor growth of reference information is required. The regulator estimates all coefficients at the prescribed model order and uses them directly in feedback, without gain adjustment or added probing. Thus optimal tracking does not require the parameter estimates to converge to the true coefficients, as Example~\ref{ex:inconsistent} illustrates.
+
+The main difficulty is to obtain enough information for control when the reference need not identify the plant and the gain estimate can approach zero. We show that failure of optimal tracking forces large inputs to occur repeatedly. The resulting input and output observations provide information that brings the recursion to states where the conditional probability of stability and optimal tracking is bounded away from zero. On the failure event, however, the conditional probability of failure tends to one, a contradiction.
+
+Section~\ref{sec:model} gives the formulation and main result. Section~\ref{sec:geometry} separates the strong and weak parameter directions. Section~\ref{sec:global} derives information from large inputs, and Section~\ref{sec:persistence} completes the proof. Section~\ref{sec:conclusion} concludes the paper. The appendices give the probability, local stability and finite interval estimates.
+
+\subsection{Notation}
+Limits concern $n\to\infty$ unless specified otherwise. Vector norms are Euclidean, matrix norms induced, and $\|\cdot\|_F$ is the Frobenius norm. For matrices, superscript $*$ denotes conjugate transpose. For symmetric matrices, $H>0$ means positive definite and $H\succeq K$ means that $H-K$ is positive semidefinite. The backward shift is $zv_n\triangleq v_{n-1}$, and $[F(z)v]_n$ denotes the output of a causal filter with zero history unless specified.
+
+Constants $C$ may depend on the fixed plant, the reference bound, the noise moment bound and the fixed exponents and tolerances. Constants in almost sure estimates may also depend on the sample path. In conditional local estimates, dependence on the initial data is stated explicitly. We use $O(\cdot)$ and $o(\cdot)$ for asymptotic bounds and remainders. Under the specified conditional laws, $O_{\Prob}(1)$ denotes boundedness in probability and $o_{\Prob}(1)$ denotes convergence to zero in probability.
+
+% sections/02_model_results
+\section{Problem Formulation and Main Result}\label{sec:model}
+\subsection{Model and regulator}
+With $d\triangleq p+q$, define
+\begin{equation}\label{eq:regressor}
+ \theta\triangleq (-a_1,\ldots,-a_p,b_1,\ldots,b_q)^T,\qquad
+ \ph_n\triangleq (y_n,\ldots,y_{n-p+1},u_n,\ldots,u_{n-q+1})^T.
+\end{equation}
+The output entries are absent when $p=0$. In this notation,~\eqref{eq:plant} becomes
+$y_{n+1}=\theta^T\ph_n+w_{n+1}$.
+The required initial histories $y_{1-p},\ldots,y_0$ and $u_{1-q},\ldots,u_{-1}$ are finite and deterministic. For $p=0$, set $y_0=0$. Extend $w_n$ by zero for $n\le0$. Empty lists and sums have their usual meanings.
+
+Let $y_n^*$, $n\ge1$, denote the reference signal to be tracked by $y_n$, and set $y_n^*=0$ for $n\le0$. At time $n$, the reference $y_{n+1}^*$ is available to the controller.
+
+Choose a deterministic initial estimate $\thh_0\in\R^d$ and a deterministic matrix $P_0>0$. The estimator is
+\begin{equation}
+ \thh_{n+1} =\thh_n+ \frac{P_n\ph_n}{1+\ph_n^TP_n\ph_n} (y_{n+1}-\thh_n^T\ph_n),\label{eq:rls}\quad P_{n+1}^{-1}=P_n^{-1}+\ph_n\ph_n^T.
+\end{equation}
+At time $n$, the CE controller chooses $u_n$ from
+\begin{equation}\label{eq:ce}
+ \thh_n^T\ph_n=y_{n+1}^*.
+\end{equation}
+Writing $\thh_n=(-\ahat_{1,n},\ldots,-\ahat_{p,n},
+\bhat_{1,n},\ldots,\bhat_{q,n})^T$, the control law is
+\begin{equation}\label{eq:control}
+ u_n=
+ \frac{y_{n+1}^*+\sum_{i=1}^p\ahat_{i,n}y_{n-i+1}
+             -\sum_{j=2}^q\bhat_{j,n}u_{n-j+1}}{\bhat_{1,n}}.
+\end{equation}
+At each $n$ with $\bhat_{1,n}\ne0$, the input is computed before observing $w_{n+1}$, and the estimate is updated after observing $y_{n+1}$.
+
+\subsection{Control objective}
+Define the tracking residual
+\[
+ \varepsilon_n\triangleq\theta^T\ph_n-y_{n+1}^*=y_{n+1}-w_{n+1}-y_{n+1}^*.
+\]
+The cumulative residual and regressor energies are
+\begin{equation*}
+ R_n\triangleq \sum_{t=0}^{n-1}\varepsilon_t^2,\qquad
+ r_n\triangleq 1+\sum_{t=0}^{n-1}\|\ph_t\|^2.
+\end{equation*}
+The tracking error satisfies $y_{n+1}-y_{n+1}^*=\varepsilon_n+w_{n+1}$.
+Following~\cite[Section~1.2]{Guo94}, stability means bounded average input and output energy,
+\begin{equation*}
+ \limsup_{n\to\infty}\frac1n\sum_{t=0}^{n-1}(y_t^2+u_t^2)<\infty\as
+\end{equation*}
+Tracking is asymptotically optimal when
+\begin{equation}\label{eq:tracking-objective}
+ \frac1n\sum_{t=0}^{n-1}(y_{t+1}-y_{t+1}^*)^2
+ =\frac1n\sum_{t=0}^{n-1}w_{t+1}^2+o(1)\as
+\end{equation}
+
+\subsection{Assumptions}
+Define the filtration
+\[
+ \F_n\triangleq \sigma(y_j^*:j\ge1;\,w_1,\ldots,w_n),\qquad n\ge0.
+\]
+\begin{assumption}\label{ass:plant}
+The polynomial $B$ has no zeros in $|z|\le1$, and at least one of
+$\deg(A-1)=p$ and $\deg B=q-1$ holds, with $\deg0=-\infty$.
+\end{assumption}
+For $p\ge1$, the degree condition is equivalent to $|a_p|+|b_q|>0$.
+
+\begin{assumption}\label{ass:noise}
+The reference satisfies $\sup_{n\ge1}|y_n^*|<\infty$ almost surely. For some constants $\sigma^2>0$ and $\nu>2$,
+\begin{equation}\label{eq:noise}
+ \E\left[w_{n+1}\mid\F_n\right]=0,\qquad
+ \E\left[w_{n+1}^2\mid\F_n\right]=\sigma^2,\qquad
+ \sup_{n\ge0}\E\left[|w_{n+1}|^\nu\mid\F_n\right]<\infty
+ \quad\text{a.s.}
+\end{equation}
+\end{assumption}
+
+The last bound in~\eqref{eq:noise} may be random. The conditional assumptions are imposed with respect to the filtration containing the complete reference. Assumption~\ref{ass:plant} implies $b_1\ne0$ and stability of the causal inverse of $B$.
+
+As in~\cite[eq.~(70)]{Guo95}, we assume that the recursion is well defined at every finite time,
+\begin{equation}\label{eq:defined}
+ \Prob\{\bhat_{1,n}\ne0\text{ for every integer }n\ge0\}=1.
+\end{equation}
+A nonzero initial gain estimate ensures~\eqref{eq:defined} if the conditional law of $w_{n+1}$ given $\F_n$ has no atoms almost surely for every $n$. Indeed, conditional on $\F_n$, the next gain estimate is either unchanged or a nonconstant affine function of $w_{n+1}$.
+
+Under condition~\eqref{eq:defined}, $\ph_n$ and $\varepsilon_n$ are $\F_n$-measurable. Assumption~\ref{ass:noise} therefore gives
+\[
+ \E\left[(y_{n+1}-y_{n+1}^*)^2\mid\F_n\right]=\varepsilon_n^2+\sigma^2.
+\]
+If the coefficients were known, solving $\theta^T\ph_n=y_{n+1}^*$ would set $\varepsilon_n=0$ and attain the minimum conditional mean squared tracking error $\sigma^2$.
+
+The martingale strong law~\cite[Theorem~2.18, pp.~35--36]{HallHeyde80}, applied to $w_{t+1}^2-\sigma^2$, gives $n^{-1}\sum_{t<n}w_{t+1}^2\to\sigma^2$ almost surely. Thus~\eqref{eq:tracking-objective} is equivalent to convergence of the average squared tracking error to $\sigma^2$. Under Assumption~\ref{ass:noise}, it is also equivalent to $R_n=o(n)$ almost surely~\cite[p.~437]{Guo95}.
+
+\subsection{Main result}
+\begin{theorem}\label{thm:performance}
+Under Assumptions~\ref{ass:plant} and~\ref{ass:noise} and condition~\eqref{eq:defined}, the recursion~\eqref{eq:rls}--\eqref{eq:ce} satisfies
+\begin{equation}\label{eq:main-performance}
+ r_n=O(n),\qquad R_n=o(n)\as
+\end{equation}
+for each plant and initialization satisfying the stated conditions and each reference satisfying Assumption~\ref{ass:noise}. In particular,
+\begin{align}
+ \limsup_{n\to\infty}\frac1n\sum_{t=0}^{n-1}(y_t^2+u_t^2)
+ &<\infty\as,\label{eq:main-stability}\\
+ \frac1n\sum_{t=0}^{n-1}(y_{t+1}-y_{t+1}^*)^2
+ &\longrightarrow\sigma^2\as\label{eq:main-tracking}
+\end{align}
+\end{theorem}
+
+Section~\ref{sec:persistence} proves~\eqref{eq:main-performance} using the large-input estimates in Section~\ref{sec:global} and the local estimates in the appendices.
+
+The following example gives optimal tracking with a constant, incorrect parameter estimate.
+\begin{example}\label{ex:inconsistent}
+Let $p=0$, $q=2$, $B(z)=1+z/2$, $y_{n+1}^*=0$ and $u_{-1}=0$. Take $\thh_0=(1,0)^T$, any $P_0>0$ and independent noises with probabilities $1/2$ at $\sigma$ and $-\sigma$. Equations~\eqref{eq:control} and~\eqref{eq:rls} give, by induction,
+\[
+ u_n=0,\qquad \ph_n=0,\qquad
+ \thh_n=(1,0)^T,\qquad y_{n+1}=w_{n+1}
+ \quad\text{for all }n\ge0.
+\]
+All assumptions of Theorem~\ref{thm:performance} hold. The estimate remains different from the true vector $(1,1/2)^T$, while $R_n=0$.
+\end{example}
+
+\section{Strong and Weak Parameter Directions}\label{sec:geometry}
+For $p\ge1$, factor:
+\begin{equation*}
+ D\triangleq\gcd(A-1,B),\qquad A-1=DA_c,\quad B=DB_c,\quad
+ D(0)=1,\quad k\triangleq\deg D,\quad m\triangleq d-k-1.
+\end{equation*}
+Both $D^{-1}$ and $B_c^{-1}$ are stable. If $A=1$, take $D=B/b_1$, $A_c=0$ and $B_c=b_1$. For changes $\Delta A,\Delta B$ in $A,B$, denote the coefficient increment by $\Delta\theta\triangleq(-\Delta a_1,\ldots,-\Delta a_p,\Delta b_1,\ldots,\Delta b_q)^T$.
+\begin{lemma}\label{lem:coords}
+Under feedback with true coefficients, zero reference and histories, the regressor is orthogonal to $\Delta\theta$ for every noise sequence exactly when
+\begin{equation}\label{eq:nullideal}
+ (\Delta A,\Delta B)=(A_cG,B_cG),\qquad\deg G\le k.
+\end{equation}
+For the actual STR, there exist a fixed nonsingular matrix $\Gamma$ and stable filter $\mathcal T$ with
+\begin{equation*}
+ \phc_n\triangleq \Gamma^T\ph_n=(x_n^T,\psi_n^T)^T,\quad
+ \psi_n\triangleq(q_n,\ldots,q_{n-k})^T,\quad q_n\triangleq[B_cu]_n-[A_cy]_{n+1},
+\end{equation*}
+where $x_n,z_n\in\mathbb R^m$, $\psi_n\in\mathbb R^{k+1}$ and $0<\rho<1$. The recursion for $z_n$ below has $\rho(F)<1$, $\operatorname{rank}[c,Fc,\ldots,F^{m-1}c]=m$ and limiting covariance $I_m$:
+\begin{equation}\label{eq:decomp}
+ [Dq]_n=y^*_{n+1}+\varepsilon_n,\qquad
+ x_n=z_n+[\mathcal T q]_n+\xi_n,\quad z_{n+1}=Fz_n+cw_{n+1},\quad \|\xi_n\|\le C\rho^n.
+\end{equation}
+\end{lemma}
+\begin{proof}
+The noise responses satisfy $y_{n+1}^w=w_{n+1}$, $u_n^w=[(A_c/B_c)w]_{n+1}$. Coprimeness of $A_c,B_c$ gives kernel \eqref{eq:nullideal} and image $\operatorname{span}\{z,\ldots,z^m\}$ for $(\Delta A,\Delta B)\mapsto A_c\Delta B-B_c\Delta A$. Take preimages of $z,\ldots,z^m$ and kernel vectors $G=1,z,\ldots,z^k$ as columns of $\Gamma$, then normalize the strong noise covariance to $I_m$. Identities $[Dq]_n=y_{n+1}-w_{n+1}$ and $[B_cu]_n=q_n+[A_cy]_{n+1}$ give \eqref{eq:decomp}.
+\end{proof}
+Write throughout
+\begin{equation*}
+ \etac_n\triangleq\Gamma^{-1}(\thh_n-\theta)=(\beta_n^T,\alpha_n^T)^T,\quad
+ M_n\triangleq\Gamma^T P_n^{-1}\Gamma,\quad V_n\triangleq\etac_n^T M_n\etac_n.
+\end{equation*}
+The strong and weak projections are $\Pi_s\triangleq\diag(I_m,0)$, $\Pi_w\triangleq\diag(0,I_{k+1})$. For finite impulse response (FIR) models ($p=0$), use $\Gamma=I_q$ and $m=0$. For $p\ge1$, $m\ge p\ge1$, even when the true output coefficients vanish.
+
+\section{Large Inputs and Information}\label{sec:global}
+It suffices to prove $R_N=o(N)$. Since
+$y_{n+1}=y_{n+1}^*+\varepsilon_n+w_{n+1}$ and $[Bu]_n=[Ay]_{n+1}-w_{n+1}$,
+stable inversion of $B$ and the noise strong law give
+\begin{equation*}
+ r_N\le C\bigl(1+N+R_N+\sum_{j\le N}w_j^2\bigr)
+       =O(N+R_N)\quad\text{a.s.}
+\end{equation*}
+The leverage $h_n\triangleq\ph_n^TP_n\ph_n$ and the LS identities give
+\begin{align}
+ P_n^{-1}(\thh_n-\theta)&=P_0^{-1}(\thh_0-\theta)+\sum_{j<n}\ph_jw_{j+1},\notag\\
+ V_{n+1}&=V_n+w_{n+1}^2-\frac{(\varepsilon_n+w_{n+1})^2}{1+h_n}.\label{eq:lsidentity}
+\end{align}
+Apply \cite{Guo95} conditionally on the complete reference, using its case of a deterministic reference and the martingale assumptions in~\eqref{eq:noise}. Finite initial histories contribute a decaying term after stable inversion of $B$. The self-normalized LS bounds and Lemma~\ref{lem:mart} give
+\begin{equation}\label{eq:lslog}
+ V_n+\|\thh_n\|^2=O(\log(e+r_n)),\qquad
+ \sum_{j<n}\frac{\varepsilon_j^2}{1+h_j}=O(\log(e+r_n))\quad\text{a.s.}
+\end{equation}
+Write $\mathcal B_\eta\triangleq\{n:|\widehat b_{1,n}-b_1|\ge\eta\}$. For $2/\nu<\gamma<1$, the gain estimate bound \cite[Lemma 7.1]{Guo95} yields along $n\in\mathcal B_\eta$:
+\begin{equation}\label{eq:exception}
+ r_n=O(n),\quad R_n=O(n^\gamma),\quad\max_{j<n}\|\ph_j\|^2=O(n^\gamma),\quad V_n=O(\log n).
+\end{equation}
+Write the physical history before choosing $u_n$ as
+\[
+ \mathbf s_n\triangleq(y_n,\ldots,y_{n-p+1},u_{n-1},\ldots,u_{n-q+1})^T.
+\]
+Together with Lemma~\ref{lem:growth}, these estimates give the next lemma.
+\begin{lemma}\label{lem:bursts}
+Let $E\triangleq\{\limsup_{N\to\infty}R_N/N>0\}$. For every $2/\nu<\gamma_1<1$, on $E$ there are almost surely infinitely many $n\in\mathcal B_{|b_1|/2}$ with $u_n^2\ge n^{\gamma_1}$.
+\end{lemma}
+\begin{proof}
+If such inputs cease, $u_n^2<n^{\gamma_1}$ eventually on $\mathcal B_{|b_1|/2}$, while the gain is bounded away from zero off this set. CE, \eqref{eq:lslog} and bounded reference give
+$\|\ph_n\|^2\le C\log(e+r_n)\|\mathbf s_n\|^2+C(1+n)^{\gamma_1}$ for the physical history $\mathbf s_n$. Apply Lemma~\ref{lem:growth} with $\gamma_0=\gamma_1$ to obtain $\max_{j<n}\|\ph_j\|^2=O(n^{\gamma_1'})$, $\gamma_1'<1$. The weighted loss bound then gives $R_n=o(n)$, contradicting failure.
+\end{proof}
+Let $\mathcal H$ be the $d\times d$ matrix of the first $d$ transformed regression rows under a unit input impulse and zero histories. Set $\mathcal K\triangleq\ker\mathcal H$, $\mathcal Q\triangleq\mathcal K^\perp$, and let $\Pi_{\mathcal K},\Pi_{\mathcal Q}$ be their orthogonal projections.
+Let $\Delta A_v,\Delta B_v$ correspond to $\Delta\theta=\Gamma v$. For $v\in\mathcal K$, the first $d$ coefficients of the degree-$\le d-1$ polynomial $A\Delta B_v-B\Delta A_v$ vanish. Hence $A\Delta B_v=B\Delta A_v$, $\Delta B_v(0)=0$, and the plant equation yields, modulo a decaying initial transient,
+\begin{equation}\label{eq:kernel}
+ v^T\phc_t=[-\Delta B_v(z)/B(z)\,w]_{t+1}.
+\end{equation}
+For an orthonormal basis of $\mathcal K\ne\{0\}$, write its vector noise filter as
+$(-\Delta B_{v_i}/B)_i=\sum_{j\ge1}L_jz^j$. Then
+\begin{equation*}
+ \sigma^2\sum_{j\ge1}L_jL_j^T\succeq\sigma^2\sum_{j=1}^{q-1}L_jL_j^T\succ0.
+\end{equation*}
+Indeed, if a direction annihilates these coefficients, multiplication by $B$ gives
+$\Delta B_v=0$, since $\Delta B_v(0)=0$ and $\deg\Delta B_v\le q-1$.
+Then $B\Delta A_v=A\Delta B_v=0$ implies $v=0$.
+For $q=1$ this also proves $\mathcal K=\{0\}$.
+Let $\chi_N^{\mathcal K}$ be the state of a fixed stable realization of the kernel noise filter, zero if $\mathcal K=\{0\}$. Superscript $h$ sets subsequent reference and noise to zero, retaining the initial state and controller sequence. Thus
+\begin{equation}\label{eq:kernelhom}
+ \sum_{t\ge0}\|\Pi_{\mathcal K}\phc_{N+t}^{h}\|^2
+ \le C\|\chi_N^{\mathcal K}\|^2.
+\end{equation}
+\begin{lemma}\label{lem:burstinfo}
+Fix $2/\nu<\gamma<\gamma_1<1$. At a selected input time $n$ from Lemma~\ref{lem:bursts}, put
+\begin{equation}\label{eq:burstscale}
+ U\triangleq|u_n|,\quad \kappa\triangleq\log(e+n),\quad
+ J\triangleq\frac{U^2}{\kappa^{d-1}},\quad \underline J\triangleq\min(n,J),\quad
+ \Lambda\triangleq\kappa^{2(d-1)},\quad N\triangleq n+d.
+\end{equation}
+The $\F_N$-measurable event
+$G_n\triangleq\{\sum_{i=1}^{d}w_{n+i}^2\le4d\sigma^2\}$ satisfies
+$\Prob(G_n\mid\F_n)\ge3/4$. On $G_n$, for all sufficiently large selected $n$,
+\begin{equation}\label{eq:burstinfo}
+ M_N\succeq c(\underline J I+J\Pi_{\mathcal Q}),\quad
+ V_N\le C\kappa,\quad
+ \|\mathbf a_N\|^2\le CJ\Lambda,\quad
+ \tr M_N\le C(n+J\Lambda).
+\end{equation}
+Here $\mathbf a_N$ collects the physical and fixed filter states, as specified in Section~\ref{sec:persistence}; for $p=0$ use $\mathbf s_N$. Constants are uniform after localization. In the FIR case,
+$[V_N+\log(e+\|\mathbf s_N\|^2)]/\lambda_{\min}(M_N)\to0$ on $G_n$.
+\end{lemma}
+Conditional Markov gives the event bound; Appendix~\ref{sec:burstdetail} gives the matrix estimates.
+
+For $r\ge0$, $a<\gamma_1$ fixed, $U^2\ge n^{\gamma_1}$ yields $J,\underline J\ge n^{\gamma_1}/\kappa^{d-1}$, so
+\begin{equation}\label{eq:scales}
+ \max\left\{\frac{n^a\kappa^r}{J},\frac{n^a\kappa^r}{\underline J}\right\}
+ \le n^{a-\gamma_1}\kappa^{r+d-1}=o(1).
+\end{equation}
+This covers $a=\gamma,(1+\gamma)/2$ when $\gamma_1>(1+\gamma)/2$; also $\log(e+J\Lambda)/J=o(1)$ uniformly in $U$.
+
+\section{Local Stability and Proof of the Main Result}\label{sec:persistence}
+For $p\ge1$, choose a fixed stable realization of $\mathcal T$ with state $\mathbf t_n$ and $\mathbf t_{-k}=0$, absorbing the initial discrepancy into $\xi_n$ in~\eqref{eq:decomp}. Preserve states at restarts and set $\mathbf a_n\triangleq(\mathbf s_n^T,\mathbf t_n^T,q_{n-1},\ldots,q_{n-k},z_n^T,(\chi_n^{\mathcal K})^T)^T$, $g_n\triangleq z_n+\xi_n$ and $Z_n\triangleq Z_0+\sum_{j<n}g_j\psi_j^T$.
+Here $Z_0$ is the upper right block of the original $M_0$. At a restart $N$, relabel $(M_N,Z_N,\mathbf a_N)$ as $(M_0,Z_0,\mathbf a_0)$.
+\begin{lemma}\label{lem:nonexit}
+For $p\ge1$, fix the original initialization, deterministic reference and conditional $s$th-moment bounds, $2<s<\min(\nu,3)$, and $K_0<\infty$. There exist $\delta,L_*,\zeta>0$ such that the entry conditions, with $L\triangleq\lambda_{\min}(M_0)$ and $H\triangleq1+\|M_0\|$,
+\begin{equation}\label{eq:entry}
+ L\ge L_*,\quad\|Z_0\|\le K_0L,\quad
+ \frac{V_0+\|\mathbf a_0\|^2+1+\log(1+H/L)}{L}\le\zeta
+\end{equation}
+ensure $\Prob(\|\etac_t\|<\delta\ \forall t\ge0\mid\F_0)\ge1/2$. On this event $r_N=O(N)$ and $R_N=o(N)$ almost surely.
+\end{lemma}
+The proof is in Appendix~\ref{sec:local}.
+\begin{lemma}\label{lem:transition}
+Suppose $p\ge1$, choose $2/\nu<\gamma<1$ and
+$(1+\gamma)/2<\gamma_1<1$, and let $n,N,J,\underline J,\Lambda$ be as in
+Lemma~\ref{lem:burstinfo}. Conditional on $\F_N$ and $G_n$, set
+$T\triangleq\lceil J\Lambda\rceil$.
+For all large selected $n$, with conditional probability at least $3/4$, estimates remain in a fixed ball with a common Lyapunov function on $[N,N+T]$ and the entry conditions
+\eqref{eq:entry} hold at $N+T$ with $K_0=1$. 
+\end{lemma}
+See Appendix~\ref{sec:burstdetail}.
+
+\begin{proof}[Proof of Theorem~\ref{thm:performance}]
+Choose $2<s<\min(\nu,3)$, $2/\nu<\gamma<1$ and $(1+\gamma)/2<\gamma_1<1$. By Lemma~\ref{lem:bursts}, failure forces infinitely many large inputs. Localize to
+$E_{a,b}\triangleq E\cap\{\sup_n|y_n^*|\le a,\ \sup_n\E(|w_{n+1}|^s\mid\F_n)\le b\}$, $a,b\in\mathbb N$. At the first $j$ with $\E(|w_{j+1}|^s\mid\F_j)>b$, replace $w_{j+1},w_{j+2},\ldots$ by independent symmetric $\pm\sigma$ variables. Use true feedback after parameter exit. Until either change the recursions coincide. On $E_{a,b}$ noise is unchanged, so auxiliary nonexit and success imply original success.
+
+For $p\ge1$ the tower property gives fixed success probability $(3/4)^2/2=9/32>1/4$ at every sufficiently late selected time. For $p=0$, the event $G_n$ at $N=n+q$ gives
+$L=\lambda_{\min}(M_N)\ge cJ$, $V_N\le C\kappa$ and
+$\|\mathbf s_N\|^2\le CJ\Lambda$. With $\delta$ from Lemma~\ref{lem:firbounded}, the input recursion contracts until $\tau\triangleq\inf\{t\ge0:\|\thh_{N+t}-\theta\|\ge\delta\}$.
+Thus $T_c\triangleq q+\lceil C_B\log(e+\|\mathbf s_N\|^2)\rceil$, known at $N$, ensures a bound on $\|\mathbf s_{N+T_c}\|$ depending only on the plant and reference bound, on $\{\tau>T_c\}$.
+The stopped LS identity gives $\E(V_{N+(T_c\wedge\tau)}\mid\F_N)\le V_N+\sigma^2T_c$; Markov yields
+\[
+ \Prob\bigl(\tau\le T_c\text{ or }[\tau>T_c,\ V_{N+T_c}>\delta^2L/16]\mid\F_N\bigr)
+ \le C(V_N+\sigma^2T_c)/L=o(1).
+\]
+Applying Lemma~\ref{lem:firbounded} at $N+T_c$ makes the remaining conditional failure probability $o(1)$. The conditional FIR success probability eventually exceeds $1/4$.
+Countability of integer times and rational positive lower information bounds gives a common null set outside which the conditional probability estimates hold. Each localized path eventually meets one such collection of bounds. At the selected times, $\Prob(E_{a,b}\mid\F_n)\le3/4$ on $E_{a,b}$, contradicting L\'evy's upward convergence to $\ind_{E_{a,b}}$. The countable union over $a,b$ proves \eqref{eq:main-performance}. The noise strong law $N^{-1}\sum w_n^2\to\sigma^2$ and martingale bound $\sum\varepsilon_n w_{n+1}=o(N)$ give optimal mean-square tracking.
+\end{proof}
+
+
+% sections/07_conclusion
+\section{Conclusion}\label{sec:conclusion}
+Under the stated plant and noise assumptions, provided the recursion is well defined, the LS-based STR with unknown input gain achieves almost sure stability and optimal tracking for every bounded reference. Neither coprimeness nor growth of reference information is required. The regulator estimates all coefficients at the prescribed model order and uses them directly in feedback, without gain adjustment or added probing. Optimal tracking can hold even when the parameter estimates do not converge to the true coefficients.
+
+\appendix
+\section{Probability, Interpolation and Summation Estimates}\label{sec:prob}
+Work conditionally on $\F_0$, with deterministic bounds $|y_n^*|\le Y$, $\E(|w_{n+1}|^s\mid\F_n)\le K_s$ and $2<s<\min(\nu,3)$ after localization.
+
+\begin{lemma}\label{lem:mart}
+Let $\omega_j\ge0$ be predictable, $Q_n\triangleq\sum_{j<n}\omega_j$, and let $\xi_{j+1}$ be martingale differences satisfying $\E(|\xi_{j+1}|^r\mid\F_j)\le C\omega_j$ for $1<r\le2$. For every $\epsilon,\eta>0$ there is an $R<\infty$ independent of the particular predictable sequence such that
+\begin{equation}\label{eq:martbound}
+ \Prob\left(\left|\sum_{j<n}\xi_{j+1}\right|\le\epsilon Q_n+R\ \forall n\ \middle|\F_0\right)\ge1-\eta.
+\end{equation}
+If $\sup_j\E(|\xi_{j+1}|^r\mid\F_0)\le C$, then
+\begin{equation}\label{eq:martlinear}
+ \Prob\left(\exists n:\left|\sum_{j<n}\xi_{j+1}\right|>\epsilon n+R\ \middle|\F_0\right)\le C_\epsilon R^{1-r},\quad R\ge1.
+\end{equation}
+At any restart, the LS identity gives, with arbitrarily high fixed conditional probability,
+\begin{equation}\label{eq:LSA4}
+ V_t+\sum_{j<t}\frac{\varepsilon_j^2}{1+h_j}
+ \le C\left[V_0+R+\log\frac{\det M_t}{\det M_0}\right]\quad\text{for every }t.
+\end{equation}
+\end{lemma}
+\begin{proof}
+For initially measurable $a>0$, put $S_n\triangleq\sum_{j<n}\xi_{j+1}/(a+Q_{j+1})$. Then
+\[
+ \E(\sup_n|S_n|^r\mid\F_0)
+ \le C\E\left[\sum_j\frac{\omega_j}{(a+Q_{j+1})^r}\Bigm|\F_0\right]
+ \le C\int_0^\infty(a+x)^{-r}dx=Ca^{1-r}.
+\]
+Abel summation yields
+$|\sum_{j<n}\xi_{j+1}|\le2(a+Q_n)\sup_{j\le n}|S_j|$.
+Choose $a$ large for \eqref{eq:martbound}; take $Q_n=n$, $a=R/\epsilon$ for \eqref{eq:martlinear}.
+For \eqref{eq:LSA4}, apply these bounds to $2\varepsilon_jw_{j+1}/(1+h_j)$ and $(w_{j+1}^2-\sigma^2)h_j/(1+h_j)$ (exponent $s/2$ for the latter). Use \eqref{eq:lsidentity}, absorb half the weighted loss, and apply the determinant lemma: $\sum_{j<t}h_j/(1+h_j)\le\log(\det M_t/\det M_0)$.
+\end{proof}
+
+\begin{lemma}\label{lem:stable}
+Let $z_{j+1}=Fz_j+cw_{j+1}$ be a reachable system with
+$\rho(F)<1$, $z_0=0$, and
+$\Omega\triangleq\sigma^2\sum_{a\ge0}F^acc^T(F^T)^a\succ0$.
+For any finite $\F_0$-measurable vector sequence $(b_j)$, set
+$C_t\triangleq\sum_{j<t}z_jb_j^T$, $G_t\triangleq\sum_{j<t}b_jb_j^T$, and
+$S_F\triangleq\sum_{a\ge0}\|F^ac\|<\infty$. Then
+\begin{equation}\label{eq:weightedgram}
+ \begin{aligned}
+ \E\bigl(C_N^T C_N\mid\F_0\bigr)&\preceq\sigma^2S_F^2G_N,\\
+ \E\bigl(\max_{t\le N}\|C_t\|_F^2\mid\F_0\bigr)
+ &\le4\sigma^2S_F^2\sum_{j<N}\|b_j\|^2.
+ \end{aligned}
+\end{equation}
+If $\sup_j\|b_j\|\le Y$, then for every $\eta>0$ and $R\ge1$,
+\begin{equation}\label{eq:stablecross}
+ \Prob\{\exists t:\|C_t\|>\eta t+R\mid\F_0\}
+ \le C_{F,\sigma,Y,\eta}/R.
+\end{equation}
+In particular, $\max_{t\le N}\|C_t\|=O(N^{1/2+a})$ a.s. for any $a>0$.
+
+For fixed $\epsilon>0$ and $R\ge1$, the noise Gram matrix satisfies
+\begin{equation}\label{eq:stableLLN}
+ \Prob\left(\sup_{t\ge0}
+ \frac{\|\sum_{j<t}(z_jz_j^T-\Omega)\|}{R+t}>\epsilon
+ \Bigm|\F_0\right)\le CR^{1-s/2}.
+\end{equation}
+Thus, with any prescribed high conditional probability and all $t$,
+\begin{equation}\label{eq:stableall}
+ \|C_t\|\le\eta t+R,\qquad
+ \sum_{j<t}z_jz_j^T\succeq\tfrac12t\lambda_{\min}(\Omega)I-CRI,\qquad
+ \sum_{j\le t}w_j^2\le C(t+R).
+\end{equation}
+\end{lemma}
+\begin{proof}
+Expand the filter and exchange sums:
+\[
+ C_t=\sum_{a\ge0}F^ac\Bigl(\sum_{i=1}^{t-1-a}w_i b_{i+a}^T\Bigr).
+\]
+The inner sums are martingales. Doob's $L^2$ bound and Minkowski yield the maximal estimate in \eqref{eq:weightedgram}; directional testing gives the Loewner bound, even for singular $G_N$. Markov on dyadic horizons and Borel--Cantelli imply \eqref{eq:stablecross} and the almost-sure rate.
+
+For the Gram term, set
+$\Xi_t\triangleq\sum_{j<t}(z_jz_j^T-\Omega)$ and
+$D_j\triangleq z_jz_j^T-Fz_{j-1}z_{j-1}^T F^T-\sigma^2cc^T$.
+Then $D_j$ are martingale differences with uniformly bounded $s/2$ moments conditional on $\F_0$, and
+$\Xi_t-F\Xi_tF^T=\sum_{j=1}^tD_j-z_tz_t^T$.
+Apply \eqref{eq:martlinear} to $D_j$ and $w_j^2-\sigma^2$. The moment bound for $z_t$ and inversion of the stable Lyapunov map $X\mapsto X-FXF^T$ then give \eqref{eq:stableLLN}--\eqref{eq:stableall}.
+\end{proof}
+
+\begin{lemma}\label{lem:outer}
+Suppose $W_j\in\mathbb R^b$ are innovation blocks, adapted to $(\mathcal G_{j+1})$, such that
+$\E(W_j\mid\mathcal G_j)=0$, $\E(W_jW_j^T\mid\mathcal G_j)=\sigma^2I_b$, and $\E(\|W_j\|^s\mid\mathcal G_j)\le K_b$. Let $m_j,F_j$ be $\mathcal G_j$-measurable and uniformly bounded. For every $\eta>0$, with conditional probability $\ge1-\eta$, simultaneously for every $N$,
+\begin{equation*}
+ \sum_{j<N}(m_j+F_jW_j)(m_j+F_jW_j)^T
+ \succeq c\sum_{j<N}(m_jm_j^T+F_jF_j^T)-R_\eta I.
+\end{equation*}
+Constants depend only on these bounds and fixed dimensions.
+\end{lemma}
+\begin{proof}
+Put $a_j\triangleq(1,W_j^T)^T$ and $C_j\triangleq[m_j,F_j]$. For large fixed $T$, the truncation $Z_j\triangleq C_ja_ja_j^T C_j^T\ind_{\{\|W_j\|\le T\}}$ satisfies $0\preceq Z_j\preceq CI$ and $\E(Z_j\mid\mathcal G_j)\succeq cC_jC_j^T$. The exponential supermartingale bound \cite{Tropp11} yields $\sum_{j<N}Z_j\succeq(1-e^{-1})\sum_{j<N}\E(Z_j\mid\mathcal G_j)-R_\eta I$ for all $N$, with probability $\ge1-\eta$. The untruncated sum dominates.
+\end{proof}
+
+\begin{lemma}\label{lem:matrixmax}
+Let $\tau$ be a random horizon and $B_t$ be initially known and nondecreasing, with $B_0\succeq LI$, $B_t\preceq B_0+C_BtI$ and $\lambda_{\min}(B_t)\ge c_B\{L+\log(1+t/H)\}$ for $H\ge L\ge1$. Let $N_t\triangleq\sum_{j<t}v_jw_{j+1}$ for predictable $v_j$, with $\sum_{j<t}v_jv_j^T\preceq KB_t$ for the predictably retained increments, and suppose $I_t\succeq c_SB_t$ for $t\le\tau$ on an event $G$. Then for any $\epsilon>0$,
+\begin{equation}\label{eq:matrixmax}
+ \Prob\left(\sup_{t\le\tau}\|I_t^{-1}N_t\|>\epsilon, G\mid\F_0\right)
+ \le CK^{s/2}\left(L^{1-s/2}+[1+\log(1+H/L)]L^{-s/2}\right).
+\end{equation}
+Constants are independent of the condition number.
+\end{lemma}
+\begin{proof}
+Partition time into levels of $\log_2\det(B_tB_0^{-1})$, with $B^{(k)}\preceq B_t\preceq2B^{(k)}$. Normalization by $(B^{(k)})^{-1/2}$ and the conditional maximal inequality bound the $s/2$ moment of $N_t^T B_t^{-1}N_t$ by $CK^{s/2}$. For $t\le\tau$ on $G$, $\|I_t^{-1}N_t\|^2\le c_S^{-2}\lambda_{\min}(B_t)^{-1}N_t^TB_t^{-1}N_t$. The growth bound $\log\det(B_tB_0^{-1})\le d\log(1+C_Bt/L)\le C+d\log(H/L)+d\log(1+t/H)$ gives $\log(1+t/H)\ge c(k-k_0)$ beyond $k_0=O(1+\log(1+H/L))$. Summing levels gives $C[(k_0+1)L^{-s/2}+\sum_{k\ge0}(L+k)^{-s/2}]$, proving \eqref{eq:matrixmax}, including the predictably tested last row.
+\end{proof}
+
+
+
+At a restart, form the bounded $\F_0$-measurable regressor $\phc_t^r$ with true coefficients, zero noise and histories, and $u_n^r\triangleq[(A/B)y^*]_{n+1}$.
+
+\begin{lemma}\label{lem:inverse}
+Let $v(z)\triangleq(1,z,\ldots,z^k)^T$ and let $\mathcal T$ be analytic on
+$|z|<R$ for some $R>1$. Suppose
+\[
+ B_t\triangleq M_0+t\Pi_s+\sum_{j<t}\phc_j^r(\phc_j^r)^T
+       +a_t\Pi_w=\begin{pmatrix}G_t&C_t\\ C_t^T&W_t\end{pmatrix},
+ \quad M_0\succeq LI,\quad a_t\ge0,
+\]
+and, for positive measures $\mu_t$ on the unit circle,
+\[
+ W_t=\int vv^*d\mu_t+a_tI+E_t^w,\quad
+ C_t=\int\mathcal T v^*d\mu_t+Z_0+E_t^c,
+\]
+\[
+ \|E_t^w\|+\|E_t^c\|\le L/2,\qquad\|Z_0\|\le K_0L.
+\]
+Then, uniformly in $t$ and $a_t$,
+\begin{equation}\label{eq:inverse}
+ \|\Pi_sB_t^{-1}\|\le C/(L+t),
+\end{equation}
+where $C$ does not depend on the condition number of $M_0$.
+For the records at a restart, $\sup_t(\|E_t^w\|+\|E_t^c\|)\le C(1+\|\mathbf a_0\|^2)$, where $C$ also depends on the original initialization.
+\end{lemma}
+\begin{proof}
+Set $W_\mu\triangleq\int vv^*d\mu$ and $C_{\mathcal T,\mu}\triangleq\int\mathcal T v^*d\mu$. For finite atomic $\mu$, Cauchy--Binet and Cramer's rule express $C_{\mathcal T,\mu}W_\mu^{-1}$ as a convex combination of degree-$k$ interpolant coefficients. Each set of $k+1$ distinct nodes $(z_i)_{i\in J}$ has weight $\prod_{i\in J}\mu(\{z_i\})\prod_{i<j,\ i,j\in J}|z_i-z_j|^2/\det W_\mu$. For $1<r<R$, Cauchy's integral formula bounds the Newton divided differences of $\mathcal T$ by $rM_r/(r-1)^{j+1}$, where $M_r\triangleq\max_{|z|=r}\|\mathcal T(z)\|$. Since the Newton basis has coefficient $\ell^1$-norm at most $2^j$,
+\[
+ \|C_{\mathcal T,\mu}W_\mu^{-1}\|\le rM_r\sum_{j=0}^k2^j(r-1)^{-j-1}.
+\]
+Approximation covers general measures. Since $W_{\mu_t}\succeq LI/2$,
+\[
+ C_tW_t^{-1}=C_{\mathcal T,\mu_t}W_{\mu_t}^{-1}
+ [I-(a_tI+E_t^w)W_t^{-1}]+(Z_0+E_t^c)W_t^{-1}
+\]
+has bounded norm. Since $G_t-C_tW_t^{-1}C_t^T\succeq(L+t)I$, block inversion gives~\eqref{eq:inverse}.
+
+At a restart $N$, let $[Dq^r]_j=y^*_{N+j+1}$ for $j\ge0$, with $q_j^r=0$ for $j<0$. Retain the observed $q_j$ on $[-k,N)$ and $q_j^r$ on $[0,t)$, setting each record separately to zero elsewhere. Add their measures $|\sum_j h_je^{ij\omega}|^2d\omega/(2\pi)$. For either record $h$, put $\psi_j[h]\triangleq(h_j,\ldots,h_{j-k})^T$. Parseval gives the weak and cross integrals; the extra sums are
+\[
+ \sum_{j\notin I}\psi_j[h]\psi_j[h]^T,\qquad
+ \sum_{j\notin I}[\mathcal T h]_j\psi_j[h]^T,
+ \quad I=[0,N)\text{ or }[0,t).
+\]
+Thus $E_t^w$ is the original weak diagonal block of $M_0$ minus the two weak sums, and $E_t^c$ is minus the two cross sums; $Z_N$ contains the original upper right block of $M_0$ and $\sum_{j<N}g_j\psi_j^T$. Only $-k\le j<0$ and $N\le j<N+k$ contribute for the observed record, and $t\le j<t+k$ for the reference. The initial rows and prior are fixed, the final observed rows depend linearly on $\mathbf a_N$, and the reference rows are uniformly bounded. Stability and $2\|xy^T\|\le\|x\|^2+\|y\|^2$ prove the claimed bound.
+\end{proof}
+
+\section{Local Stability for Models with Output Feedback}\label{sec:local}
+For $p\ge1$, set the entry time to zero and use $L,H$ from~\eqref{eq:entry}. Put $M_*\triangleq\|\mathbf a_0\|$ and $\ell_t\triangleq\log(1+t/H)$. All estimates are conditional on $\F_0$ and uniform in the condition number of the entry matrix; $E_L=o_{\Prob}(L)$ denotes nonnegative remainders with $E_L/L\to0$ uniformly in conditional probability.
+
+Set $z_0=0$ and $\phc_t^o\triangleq E_sz_t+\phc_t^r$, where $E_s\triangleq(I_m,0)^T$, including the initial noise state and transient in $d_t$ below.
+For sequences with zero initial history, stable convolution by $B$ and $B^{-1}$ gives, uniformly in the horizon,
+\begin{equation}\label{eq:filtergram}
+ C_B^{-1}\sum_{t<T}v_tv_t^T
+ \preceq\sum_{t<T}[Bv]_t[Bv]_t^T
+ \preceq C_B\sum_{t<T}v_tv_t^T.
+\end{equation}
+Apply Young's inequality for scalar convolutions to $B$ and $B^{-1}$ in each test direction. For bounded varying finite taps, only the upper bound follows from bounded overlap.
+The stable representation \eqref{eq:decomp} gives
+\begin{equation}\label{eq:regerr}
+ \phc_t=\phc_t^o+d_t,\qquad
+ \sum_{t<T}\|d_t\|^2\le C\left(M_*^2+\sum_{t<T}\varepsilon_t^2\right).
+\end{equation}
+Set
+\begin{equation}\label{eq:localenvelope}
+ A_t\triangleq M_0+t\Pi_s+\sum_{j<t}\phc_j^r(\phc_j^r)^T,\qquad
+ B_t\triangleq A_t+\ell_t\Pi_w.
+\end{equation}
+For sufficiently small $\zeta$, Lemma~\ref{lem:inverse} bounds the record errors by $C(1+M_*^2)\le L/2$. Together with \eqref{eq:entry}, it gives
+\begin{equation}\label{eq:localinverse}
+ \|\Pi_sA_t^{-1}\|+\|\Pi_sB_t^{-1}\|\le C/(L+t).
+\end{equation}
+For fixed $e=(\beta,\alpha)$, the parameter $\theta+\Gamma e$ defines $\widehat A=A+\Delta A$, $\widehat B=B+\Delta B$. Set $H_e\triangleq A\widehat B-B(\widehat A-1)$ and $N_\beta\triangleq B_c\Delta A-A_c\Delta B$.
+By Lemma~\ref{lem:coords}, $\beta\mapsto N_\beta$ is injective and independent of $\alpha$. With $e$ constant and zero reference and histories, the weak response is $[(N_\beta/H_e)w]_{n+1}$, $n\ge0$. Let $g_j^w(e)$, $j\ge0$, be the impulse response from $w_t$ to $\mathbf s_{t+j}$. In a small stability ball, its directional derivative along $(v_\beta,v_\alpha)$ satisfies
+\begin{equation}\label{eq:frozenderiv}
+ \|Dg_j^w(e)[v_\beta,v_\alpha]\|
+ \le C\rho^j(\|v_\beta\|+\|\beta\|\,\|v_\alpha\|),
+ \qquad 0<\rho<1.
+\end{equation}
+The zero-state reference coefficients satisfy this derivative bound without $\|\beta\|$. Write $\Delta\etac_t\triangleq\etac_{t+1}-\etac_t$.
+
+\begin{lemma}\label{lem:localenergy}
+Fix a small ball with a common Lyapunov function about the true parameter and a tentative $c_0>0$. Let $\tau$ be the first parameter exit or failure of $M_t\succeq c_0B_t$ or the auxiliary envelopes defined in the proof. For entry families satisfying
+\begin{equation*}
+ L\to\infty,\qquad [V_0+M_*^2+1+\log(1+H/L)]/L\to0,
+\end{equation*}
+there exists initially measurable $D_L=o(L)$ such that, writing $\mathcal D_t\triangleq D_L+\ell_t$, with arbitrarily high conditional probability and uniformly for $T\le\tau$,
+\begin{align}
+ V_T+\sum_{t<T}\varepsilon_t^2&\le C\mathcal D_T,&
+ \|\beta_t\|^2&\le C\frac{\mathcal D_t}{L+t},\label{eq:stopped1}\\
+ \sum_{t<T}\|d_t\|^2&\le C\mathcal D_T,&
+ \sum_{t<T}\|\eta_t\|^2&=o_{\Prob}(L),\label{eq:stopped2}\\
+ \sum_{t<\tau-1}\|\Delta\etac_t\|^2&=o_{\Prob}(1),&
+ \sup_{t<\tau}h_t&=o_{\Prob}(1).\notag
+\end{align}
+The pointwise bound for $\beta_t$ holds for $t<\tau$. Here $\eta_t$ is the actual regressor minus its response with zero history and current coefficients used throughout, for the same reference and noise. Set $\mathcal J_t\triangleq\diag(I_m,\|\beta_t\|I_{k+1})$ and $v_t\triangleq\sum_{j=1}^t\rho^{t-j}|w_j|$. For each fixed $b\ge0$,
+\begin{equation*}
+ \sum_{t<\tau-1}\|\mathcal J_t\Delta\etac_t\|^2v_{t+b}^2=o_{\Prob}(L).
+\end{equation*}
+The constants multiplying $V_T+\sum\varepsilon_t^2$ and $\sum\|d_t\|^2$ are independent of $c_0$.
+\end{lemma}
+\begin{proof}
+For fixed $e$, let $\mathsf F(e)$ be the physical state transition matrix and $\mathbf s_t^e$ its response from zero initial state to the given reference and noise. Since $\mathsf F(0)$ has nilpotent output and stable input blocks, a common Lyapunov matrix exists locally. The states satisfy $\mathbf s_{t+1}-\mathbf s_{t+1}^{\etac_{t+1}}=\mathsf F(\etac_t)(\mathbf s_t-\mathbf s_t^{\etac_t})+\mathbf s_{t+1}^{\etac_t}-\mathbf s_{t+1}^{\etac_{t+1}}$. Current noise cancels in the last difference. Stable summation and \eqref{eq:frozenderiv} give
+\begin{equation}\label{eq:etaestimate}
+ \sum_{t<T}\|\eta_t\|^2\le C\left[M_*^2+\sum_{j<T-1}\|\Delta\etac_j\|^2+\sum_{j<T-1}\|\mathcal J_j\Delta\etac_j\|^2v_{j+b}^2\right].
+\end{equation}
+Here $b$ covers all regression lags. Put $\mathcal S_t\triangleq\sum_{j<t}\|\eta_j\|^2$ and stop when $\mathcal S_t>L$.
+
+Common stability gives $\tr M_t\le C[H+M_*^2+t+\sum_{j\le t}w_j^2]$. The noise energy bound and \eqref{eq:LSA4} therefore give
+$V_t+\sum_{j<t}\varepsilon_j^2/(1+h_j)\le C\mathcal D_t$
+with arbitrarily high conditional probability, for
+$D_L\triangleq1+V_0+M_*^2+R+\log(H/L)=o(L)$, choosing $R\uparrow\infty$ slowly.
+Include failure of this envelope in $\tau$.
+Before $\tau$, $M_t\succeq c_0B_t$ gives
+$\|\beta_t\|^2\le C\mathcal D_t/(L+t)$ and
+$M_t^{-1}\preceq c_0^{-1}\diag((L+t)^{-1}I_m,(L+\ell_t)^{-1}I_{k+1})$.
+Since $\mathcal D_t/(L+\ell_t)\le C$, congruence by $\mathcal J_t$ yields
+\begin{equation}\label{eq:Jinfo}
+ \mathcal J_tM_t^{-1}\mathcal J_t\preceq C(L+t)^{-1}I.
+\end{equation}
+The frozen reference response satisfies $\phc^{e,r}=(B/H_e)\phc^r$ componentwise, with zero prehistory. Its uniformly stable coefficients give the reference leverage bound
+$\lambda_t^r\triangleq\sum_{a\ge0}\rho^a(\phc_{t-a}^r)^TB_t^{-1}\phc_{t-a}^r\le C/L$.
+Monotonicity and the determinant lemma give
+\begin{equation}\label{eq:reflever}
+ \sum_{t<N}\lambda_t^r\le C\log(1+N/L).
+\end{equation}
+Frozen noise is bounded by $Cv_t$ in strong and $C\|\beta_t\|v_t$ in weak coordinates. For $K_t\triangleq M_t^{-1}\phc_t/(1+h_t)$, \eqref{eq:Jinfo} gives
+\begin{equation}\label{eq:gainbound}
+ h_t\le C\left(\frac{v_t^2}{L+t}+\lambda_t^r+
+ \frac{\|\eta_t\|^2}{L+\ell_t}\right),\quad
+ \|\mathcal J_tK_t\|^2\le\frac{C h_t}{(L+t)(1+h_t)^2}.
+\end{equation}
+For $2/s<\gamma<1$, the $s$th moments of $v_t$ and a union bound give
+$v_{t+b}^2\le K(L+t)^\gamma$ for all $t$ with probability $1-o(1)$.
+The $\F_j$-measurable test
+$\chi_j\triangleq\ind_{\{j<\tau,\ \mathcal S_{j+1}\le L\}}$
+retains every $j<\tau-1$ and satisfies $\sum_j\chi_j\|\eta_j\|^2\le L$.
+Conditional variance, \eqref{eq:reflever} and \eqref{eq:gainbound} yield
+\[
+ \E\left[\sum_j\chi_j(L+j)^\gamma\|\mathcal J_jK_jw_{j+1}\|^2\middle|\F_0\right]
+ \le CL^{\gamma-1}=o(1).
+\]
+Combining this with the noise envelope bounds the weighted noise updates by $o_{\Prob}(1)$. Abel summation of the weighted loss bound gives
+\[
+ \sum_{t<\tau-1}\|\mathcal J_tK_t\|^2\varepsilon_t^2v_{t+b}^2
+ \le C(D_L+1)L^{\gamma-1}=o(L).
+\]
+The covariance decrease
+$M_t^{-1}-M_{t+1}^{-1}=(1+h_t)K_tK_t^T$ gives
+$\E\sum\|K_tw_{t+1}\|^2\le\sigma^2\tr M_0^{-1}\le C/L$.
+The CE bound $|\varepsilon_t|\le C(\delta+\|\beta_t\|v_t+\delta\|\eta_t\|)$ and the same covariance budget give
+\[
+ \sum_{t<T-1}\|K_t\varepsilon_t\|^2
+ \le C\bigl[L^{-1}+(D_L+1)L^{\gamma-2}\bigr]
+ +C\delta^2\mathcal S_T/L.
+\]
+Substitution in \eqref{eq:etaestimate} and absorption give $\mathcal S_T=o_{\Prob}(L)$ uniformly for $T\le\tau$, including the first crossing since only updates $j<T-1$ occur on the right. This excludes the energy exit and controls RLS increments and $\sup h_t=o_{\Prob}(1)$. With $h_t\le1$, \eqref{eq:LSA4} and \eqref{eq:regerr} give the unweighted loss and regressor bounds, with leading constants independent of $c_0$.
+\end{proof}
+
+\begin{lemma}\label{lem:annihilator}
+For $p\ge1$, let $b\triangleq d-1$ and
+$H_f\triangleq A\widehat B_f-B(\widehat A_f-1)$ for a fixed transformed
+error $f=(\beta,\alpha)$ in the local stability ball. For $t\ge2d$ before stopping, set $f_t\triangleq\etac_{t-b}$ and
+\[
+ \bar\ph_t\triangleq[H_{f_t}(z)\phc]_t,
+ \qquad \bar\varepsilon_t\triangleq[H_{f_t}(z)\varepsilon]_t,
+ \quad W_{t,b}\triangleq(w_{t-b+1},\ldots,w_t)^T.
+\]
+There are bounded $\F_{t-b}$-measurable matrices $\mathsf C(f_t)$ and initially known $m_t\triangleq[B(z)\phc^r]_t$ such that
+\begin{align}
+ \bar\ph_t&=m_t+\mathsf C(f_t)W_{t,b}+\zeta_t^\ph,
+ \label{eq:annihilator}\\
+ \bar\varepsilon_t&=-f_t^T\{m_t+\mathsf C(f_t)W_{t,b}\}
+                    +\zeta_t^\varepsilon,
+ \notag\\
+ \sum_{2d\le t<\tau}(\|\zeta_t^\ph\|^2+|\zeta_t^\varepsilon|^2)
+  &=o_{\Prob}(L).\label{eq:annihilatorerror}
+\end{align}
+The matrix $Q(f)\triangleq \mathsf C(f)\mathsf C(f)^T$ satisfies
+\begin{align}
+ c\|\beta\|^2&\le f^T Q(f)f\le C\|\beta\|^2,
+ \label{eq:annihilatorresgain}\\
+ cI&\preceq Q(f)_{ss}\preceq CI,\qquad
+ c\|\beta\|^2I\preceq Q(f)_{ww}\preceq C\|\beta\|^2I.
+ \label{eq:annihilatorQ}
+\end{align}
+With arbitrarily high conditional probability, the augmented innovation comparison gives for all $T\le\tau$,
+\begin{align}
+ \sum_{2d\le t<T}|\bar\varepsilon_t|^2
+ &\ge c\sum_{2d\le t<T}\|\beta_{t-b}\|^2-E_L,
+ \label{eq:jointresidual}\\
+ \sum_{2d\le t<T}\bar\ph_t\bar\ph_t^T
+ &\succeq c\sum_{2d\le t<T}(m_tm_t^T+Q(f_t))-E_LI,
+ \label{eq:jointgram}
+\end{align}
+for one nonnegative $E_L=o_{\Prob}(L)$.
+\end{lemma}
+\begin{proof}
+Write $Y_j\triangleq y_{j+1}$, $R_j\triangleq y^*_{j+1}$, $W_j\triangleq w_{j+1}$. For fixed $f$, plant and CE give $AY=Bu+W$ and $\widehat B_fu-(\widehat A_f-1)Y=R+r(f)$, where $r_j(f)\triangleq(f-\etac_j)^T\phc_j$. Eliminating $Y,u$ gives
+\begin{equation*}
+ H_f
+ \begin{pmatrix}Y\\u\end{pmatrix}
+ =\begin{pmatrix}B\\A\end{pmatrix}(R+r(f))+
+   \begin{pmatrix}\widehat B_f\\\widehat A_f-1\end{pmatrix}W.
+\end{equation*}
+Lag coordinates give \eqref{eq:annihilator}; $t\ge2d$ removes boundary terms.
+
+CE gives $\varepsilon_j=-\etac_j^T\phc_j$. Writing $H_f(z)=\sum_{i=0}^b h_i(f)z^i$,
+\begin{equation*}
+ \bar\varepsilon_t+f_t^T\bar\ph_t
+ =\sum_{i=0}^{b}h_i(f_t)
+       (f_t-\etac_{t-i})^T\phc_{t-i}.
+\end{equation*}
+Both errors involve $r_{t-i}(f_t)$. The projected noise numerator is
+$-\Delta A_f\widehat B_f+\Delta B_f(\widehat A_f-1)
+ =-[B\Delta A_f-(A-1)\Delta B_f]=-DN_\beta$,
+where $N_\beta=B_c\Delta A_f-A_c\Delta B_f$.
+Injectivity of $\beta\mapsto N_\beta$ and equivalence of finite coefficient norms give~\eqref{eq:annihilatorresgain}.
+
+
+For $t-b\le j\le t$, the discrepancy is
+\[
+ r_j(f_t)=-\sum_{a=t-b}^{j-1}
+  (\Delta\etac_a)^T\phc_j.
+\]
+Decompose $\phc_j$ into bounded reference, $O(v_j)$ strong noise, $O(\|\beta_j\|v_j)$ weak noise and $\eta_j$. $\beta_j-\beta_a$ is a sum of at most $b$ strong increments. The weighted increment bound and $\sup_{a<\tau-1}\|\Delta\etac_a\|^2=o_{\Prob}(1)$ control the extra products. Each update enters at most $b+1$ windows:
+\[
+ \begin{aligned}
+ \sum_{2d\le t<\tau}(|\zeta_t^\varepsilon|^2+\|\zeta_t^\ph\|^2)
+ &\le C_b\Bigl[\sum_{a<\tau-1}\|\Delta\etac_a\|^2
+ +\sum_{a<\tau-1}\|\mathcal J_a\Delta\etac_a\|^2v_{a+b'}^2\Bigr.\\
+ &\qquad\Bigl.+\sup_{a<\tau-1}\|\Delta\etac_a\|^2
+   \sum_{j<\tau}\|\eta_j\|^2\Bigr]=o_{\Prob}(L),
+ \end{aligned}
+\]
+where $b'$ is fixed, proving \eqref{eq:annihilatorerror}.
+At $f=0$ the noise coefficients in the strong block span $\R^m$. For a nonzero weak vector $h=(h_0,\ldots,h_k)^T$, the polynomial $N_\beta(z)\sum_{i=0}^kh_iz^i$ is nonzero when $\beta\ne0$ and has degree at most $m+k=b$. Compactness yields \eqref{eq:annihilatorQ}.
+
+Apply Lemma~\ref{lem:outer} with the augmented coefficient matrix
+\[
+ \binom{\bar\ph_t}{\bar\varepsilon_t}
+ =\begin{pmatrix}I_d\\-f_t^T\end{pmatrix}
+ [m_t,\mathsf C(f_t)]\binom{1}{W_{t,b}}
+ +\binom{\zeta_t^\ph}{\zeta_t^\varepsilon}.
+\]
+Extend the delayed errors outside the stability ball by a bounded predictable projection. The extension agrees with the recursion before stopping. Grouping times by their remainder modulo $b$ gives disjoint innovation blocks with predictable coefficients in each group. The two principal blocks of Lemma~\ref{lem:outer} and \eqref{eq:annihilatorerror} give \eqref{eq:jointresidual}--\eqref{eq:jointgram}.
+\end{proof}
+
+\begin{lemma}
+\label{lem:infocompare}
+Under the stopped conditions of Lemmas~\ref{lem:localenergy} and \ref{lem:annihilator},
+for sufficiently small fixed $\delta$ and any prescribed high
+conditional probability there are $c_-,C_+,c_1,C_1>0$, independent
+of the tentative $c_0$, and nonnegative $E_L=o_{\Prob}(L)$ such that,
+for every $T\le\tau$,
+\begin{align}
+ c_-\ell_T-E_L&\le\sum_{t<T}\|\beta_t\|^2
+ \le C_+(D_L+\ell_T)+E_L,\label{eq:strongenergy}\\
+ c_1B_T&\preceq M_T\preceq C_1B_T.\notag
+\end{align}
+\end{lemma}
+\begin{proof}
+\emph{Upper bound.}
+The bounded degree-$b$ filter coefficients and \eqref{eq:jointresidual} give
+\begin{equation}\label{eq:directstrongupper}
+ \sum_{t<T}\|\beta_t\|^2
+ \le C\sum_{t<T}\varepsilon_t^2+E_L
+ \le C(D_L+\ell_T)+E_L,\qquad T\le\tau.
+\end{equation}
+Index shifts cost $O(d\delta^2)$.
+
+\emph{Auxiliary lower bound.}
+Use the initially known $A_t$ in \eqref{eq:localenvelope} and set
+\begin{equation*}
+ \mathcal R_t\triangleq E_s^T A_t^{-1},\qquad
+ N_t\triangleq\sum_{j<t}\phc_j^o w_{j+1},\qquad \bar\beta_t\triangleq\mathcal R_tN_t.
+\end{equation*}
+Reachability and conditional orthogonality give a fixed $b_*$ such that
+\begin{equation}\label{eq:auxcov}
+ \E[(N_t-N_N)(N_t-N_N)^T\mid\F_N]
+ \succeq c(t-N-b_*)\Pi_s,\qquad t>N+b_*.
+\end{equation}
+For sufficiently large fixed $C_0$, put $n_j\triangleq2^j\lceil C_0H\rceil$ and
+$W_j\triangleq\sum_{t=\lceil3n_j/2\rceil}^{2n_j}\|\bar\beta_t\|^2$.
+Since $A_t\preceq Cn_jI$ on this block and is initially known,
+\eqref{eq:auxcov} gives $\E(W_j\mid\F_{n_j})\ge c_*>0$.
+For any initially measurable $a$, Burkholder and the stable zero-state response give
+\begin{equation*}
+ \E(|a^T N_t|^s\mid\F_0)
+ \le C\left[\sum_{j<t}(a^T\phc_j^r)^2+t\|E_s^T a\|^2\right]^{s/2}
+ \le C(a^T A_ta)^{s/2}.
+\end{equation*}
+For $\sum_{j<t}a^TE_sz_jw_{j+1}$, the predictable quadratic variation $\sigma^2\sum_{j<t}(a^TE_sz_j)^2$ has conditional $s/2$ moment at most $Ct^{s/2}\|E_s^T a\|^s$.
+Taking $a=A_t^{-1}E_sv$ and using
+$E_s^T A_t^{-1}E_s\preceq(L+t)^{-1}I_m$ yields
+$\E(\|\bar\beta_t\|^s\mid\F_0)\le C(L+t)^{-s/2}$.
+Jensen gives $\E(W_j^{s/2}\mid\F_0)\le C$.
+Apply \eqref{eq:martlinear} to
+$W_j-\E(W_j\mid\F_{n_j})$, adapted to $\F_{n_{j+1}}$.
+Counting completed disjoint blocks gives, with any prescribed high probability,
+\begin{equation}\label{eq:auxlog}
+ \sum_{t<T}\|\bar\beta_t\|^2\ge c\ell_T-R_\eta
+ \quad\text{for all }T.
+\end{equation}
+
+\emph{Transfer to the actual error.}
+The normal equation and \eqref{eq:regerr} give
+\begin{equation}\label{eq:compare}
+ \bar\beta_t=\beta_t-\mathcal R_tM_0\etac_0-\mathcal R_t\sum_{j<t}d_jw_{j+1}+\mathcal R_t(M_t-A_t)\etac_t.
+\end{equation}
+Put $\Xi_t\triangleq\sum_{j<t}(z_jz_j^T-I_m)$. Then $M_t-A_t$ consists of $\diag(\Xi_t,0)$, two cross terms between reference and noise and $\sum_{j<t}(\phc_j^od_j^T+d_j\phc_j^T)$.
+ By
+Lemmas~\ref{lem:stable} and \ref{lem:inverse}, with probability $1-o(1)$,
+$\|\Xi_t\|\le C(L+t)$ for all $t$ and
+$\sum_{t<T}\|\mathcal R_tE_s\Xi_t\beta_t\|^2\le
+C\sum_{t<T}\|\beta_t\|^2$.
+
+For these cross terms, put
+$G_t\triangleq\sum_{j<t}\phc_j^r(\phc_j^r)^T$,
+$C_t\triangleq\sum_{j<t}z_j(\phc_j^r)^T$, and
+$Z_t^G\triangleq\|C_tA_t^{-1/2}\|_F^2$.
+By \eqref{eq:weightedgram},
+\begin{equation*}
+ \E(C_t^T C_t\mid\F_0)\preceq C_FG_t,
+ \qquad \E(Z_t^G\mid\F_0)\le C_F\tr(G_tA_t^{-1})\le C_Fd.
+\end{equation*}
+Here $A_t\succeq LI+G_t$.
+The bound
+$\Pi_sA_t^{-1}\Pi_s\preceq(L+t)^{-1}\Pi_s$ gives
+$\|\mathcal R_tE_s\|\le(L+t)^{-1}$ and
+$\|\mathcal R_tA_t^{1/2}\|^2\le(L+t)^{-1}$.
+Cauchy--Schwarz and \eqref{eq:stopped1} therefore give, on $t<\tau$,
+\[
+ \begin{split}
+ &\|\mathcal R_tE_sC_t\etac_t\|^2+\|\mathcal R_tC_t^T\beta_t\|^2\\
+ &\quad\le Z_t^G\left\{\frac{\etac_t^T A_t\etac_t}{(L+t)^2}
+             +\frac{\|\beta_t\|^2}{L+t}\right\}
+ \le\frac{C_{c_0}\mathcal D_t Z_t^G}{(L+t)^2},
+ \end{split}
+\]
+since $\etac_t^T A_t\etac_t\le V_t/c_0$.
+Let $G_{\mathrm{en}}$ be the joint event for the energy bounds in \eqref{eq:stopped1}--\eqref{eq:stopped2}. Taking expectations on $G_{\mathrm{en}}$ and using
+$\sum_t(D_L+\ell_t)/(L+t)^2\le C(D_L+1)/L$ yields
+\begin{equation*}
+ \E\left[\ind_{G_{\mathrm{en}}}\sum_{t<\tau}
+ \bigl(\|\mathcal R_tE_sC_t\etac_t\|^2+
+ \|\mathcal R_tC_t^T\beta_t\|^2\bigr)\middle|\F_0\right]
+ \le C_{c_0}\frac{D_L+1}{L}=o(1).
+\end{equation*}
+
+From $\sum_{j<t}a_j^2\le C(L+t)$ for every $t$, Abel summation gives $\sum_{j<t}a_j^2/\sqrt{L+j}\le C\sqrt{L+t}$. Weighted Cauchy--Schwarz and exchanging sums then give $\sum_{t\ge0}(\sum_{j<t}a_j\|b_j\|)^2/(L+t)^2\le C\sum_j\sqrt{L+j}\|b_j\|^2\sum_{t>j}(L+t)^{-3/2}\le C\sum_j\|b_j\|^2$.
+With $\|\etac_t\|\le\delta$, the
+$\sum\phc_j^od_j^T$ term is therefore bounded by
+$C\delta^2(D_L+\ell_T)$.
+For the other term, use terminal LS energy $\sum_{j<t}|\phc_j^T\etac_t|^2\le V_t$ together with \eqref{eq:localinverse}, \eqref{eq:stopped1} and \eqref{eq:stopped2}:
+\[
+ \sum_{t<T}\left\|\mathcal R_t\sum_{j<t}d_j\phc_j^T
+ \etac_t\right\|^2
+ \le C\sum_{t<T}\frac{(D_L+\ell_t)^2}{(L+t)^2}
+ \le C(D_L+1)^2/L=o(L).
+\]
+
+Since $A_{t+1}-A_t\succeq\Pi_s$, covariance decrease gives $\sum_t\|\mathcal R_tM_0\etac_0\|^2\le2V_0$ for $L\ge1$. Set $\bar d_j\triangleq d_j$ if $j<\tau$ and $\sum_{i<j}\|\bar d_i\|^2+\|d_j\|^2\le C(D_L+\ell_{j+1})$, and zero otherwise. This test is $\F_j$-measurable; martingale orthogonality and Abel summation give
+\[
+ \E\sum_t\left\|\mathcal R_t\sum_{j<t}\bar d_jw_{j+1}\right\|^2\le C(D_L+1)/L.
+\]
+On $G_{\mathrm{en}}$, every row before $\tau$ passes this test by Lemma~\ref{lem:localenergy}. Apply the triangle inequality in \eqref{eq:compare} with $\mathcal A_T\triangleq\sum_{t<T}\|\beta_t\|^2$:
+\begin{equation*}
+ \sum_{t<T}\|\bar\beta_t\|^2
+ \le C_0\mathcal A_T+C_1\delta^2\ell_T+E_L,
+ \qquad E_L=o_{\Prob}(L).
+\end{equation*}
+These constants are independent of $c_0$; \eqref{eq:auxlog} gives
+\[
+ \mathcal A_T\ge C_0^{-1}(c-C_1\delta^2)\ell_T-E_L'.
+\]
+Taking $\delta$ small and using \eqref{eq:directstrongupper} proves \eqref{eq:strongenergy}. 
+\medskip\noindent\emph{Information comparison.}
+Using \eqref{eq:regerr}, Lemmas~\ref{lem:stable} and \ref{lem:localenergy} and $D_L+R=o(L)$, the upper bound is
+\[
+ M_T\preceq M_0+3\sum_{t<T}\phc_t^r(\phc_t^r)^T
+   +C(T+R)\Pi_s+C(D_L+\ell_T)I\preceq C_1B_T.
+\]
+Combining \eqref{eq:jointgram} with the upper bound for filters with bounded varying coefficients gives
+\begin{equation*}
+ M_T\succeq cM_0+c\sum_{2d\le t<T}m_tm_t^T
+                +c\sum_{2d\le t<T}Q(f_t)-E_LI,
+ \qquad E_L=o_{\Prob}(L).
+\end{equation*}
+Apply \eqref{eq:filtergram} to $v_t=\phc_t^r$; omitting $2d$ bounded initial rows gives
+\[
+ \sum_{2d\le t<T}m_tm_t^T
+ \succeq c\sum_{t<T}\phc_t^r(\phc_t^r)^T-CI.
+\]
+For weak information, \eqref{eq:annihilatorQ} gives
+$Q(f_t)_{ss}\succeq cI$, $Q(f_t)_{ww}\succeq c\|\beta_{t-b}\|^2I$ and
+$\|Q(f_t)_{sw}\|\le C\|\beta_{t-b}\|$.
+Young's inequality gives
+\[
+ Q(f_t)\succeq\frac c2\Pi_s-C\|\beta_{t-b}\|^2\Pi_w,
+ \qquad Q(f_t)\succeq\frac c2\|\beta_{t-b}\|^2\Pi_w-C\Pi_s.
+\]
+Weight the first bound on $[2d,T)$ by $\varpi\in(0,1)$ and the second on $[2d,\lfloor2^{-j}T\rfloor)$ by $1-\varpi$. By \eqref{eq:strongenergy}, the coefficients of $T\Pi_s$ and $\ell_T\Pi_w$ are at least $c\varpi/2-C(1-\varpi)2^{-j}$ and $c(1-\varpi)c_-/2-C\varpi C_+$, respectively, with an $o_{\Prob}(L)I$ remainder, since $\log(1+2^{-j}T/H)\ge\ell_T-j\log2$. Choose $\varpi$ small to make the latter positive, then $j$ large to make the former positive. Thus
+\[
+ \sum_{2d\le t<T}Q(f_t)
+ \succeq c\diag(TI_m,\ell_TI_{k+1})-E_L'I,
+ \qquad E_L'=o_{\Prob}(L).
+\]
+Since $M_0\succeq LI$, absorb the fixed shift and $E_L+CI=o_{\Prob}(L)$: $M_T\succeq c_1B_T$. 
+\end{proof}
+
+\begin{proof}[Completion of Lemma~\ref{lem:nonexit}]
+Fix a common Lyapunov ball and $c_0>0$. Stop at exit from a smaller $\delta$-ball, failure of $M_t\succeq c_0B_t$, or the auxiliary stop in Lemma~\ref{lem:localenergy}. With arbitrarily high conditional probability, Lemma~\ref{lem:infocompare} gives $M_t\succeq c_1B_t$ until stopping, with $c_1$ independent of $c_0$. Choose $c_0<c_1/2$. At first information exit, including the last row before exit, $M_\tau\succeq c_1B_\tau\succ c_0B_\tau$ contradicts exit.
+
+For parameter exit, use the transformed normal equation
+\begin{equation*}
+ M_T\etac_T=M_0\etac_0+\sum_{t<T}\phc_tw_{t+1}.
+\end{equation*}
+Information monotonicity and the normal equation give
+\[
+ \|\etac_T\|\le\sqrt{V_0/L}+
+ \left\|M_T^{-1}\sum_{t<T}\phc_tw_{t+1}\right\|.
+\]
+Retain $\phc_t$ only if its addition keeps the cumulative Gram matrix below $KB_{t+1}$, checking before observing $w_{t+1}$. Under the upper comparison, all rows before $\tau$ pass this test, including the update causing parameter exit. Let $G$ be the joint event for the comparison and energy bounds. On $G$ all retained rows agree with the stopped recursion, and Lemma~\ref{lem:matrixmax} gives:
+\[
+ \Prob\left(\sup_{T\le\tau}\left\|M_T^{-1}\sum_{t<T}\phc_tw_{t+1}\right\|>\epsilon,\ G\ \middle|\F_0\right)
+ \le C\left[L^{1-s/2}+[1+\log(1+H/L)]L^{-s/2}\right]=o(1).
+\]
+Choose $\Prob(G^c\mid\F_0)<1/4$, $\epsilon<\delta/2$ and a small entry ratio: since the row test includes the update causing exit, parameter exit has conditional probability at most $1/2$.
+
+On no exit, Lyapunov stability, state summation and the noise strong law give $r_T=O(T)$. Project feedback into the stable ball after exit to obtain moment bounds; on no exit, conditional Borel--Cantelli gives $h_t=o(t^\gamma)$, $2/s<\gamma<1$. By \eqref{eq:lslog}, $R_T=O(T^\gamma\log(e+T))=o(T)$.
+\end{proof}
+\section{Information and Entry over Finite Intervals}\label{sec:burstdetail}
+\begin{lemma}\label{lem:growth}
+Suppose $0\le\gamma_0<1$ and a trajectory of the true plant satisfies
+\[
+ \begin{gathered}
+ \sum_{j\le n}\frac{\varepsilon_j^2}{1+h_j}\le C\log(e+r_{n+1}),\qquad
+ |y_{n+1}^*|^2+w_{n+1}^2\le C(1+n)^{\gamma_0},\\
+ \|\ph_n\|^2\le C\log(e+r_n)\|\mathbf s_n\|^2+C(1+n)^{\gamma_0}.
+ \end{gathered}
+\]
+Then $\max_{j\le n}\|\ph_j\|^2=O(n^{\gamma_0'})$ for some $\gamma_0'<1$.
+\end{lemma}
+\begin{proof}
+Put $\Delta_n\triangleq\tr(P_n-P_{n+1})$, $\omega_n\triangleq\varepsilon_n^2/(1+h_n)$,
+$W_n\triangleq e+n+r_{n+1}$ and $\mathcal L_n\triangleq\log W_n$.
+Covariance inversion gives $\sum_n\Delta_n\le\tr P_0$ and
+$\varepsilon_n^2\le\omega_n(2+\Delta_n\|\ph_n\|^2)$.
+Stable inversion of $B$ gives a quadratic state energy $\mathcal E_n$ with
+\[
+ \mathcal E_{n+1}\le(\lambda+C\omega_n\Delta_n\mathcal L_n)\mathcal E_n
+                +C(1+n)^{\gamma_0}\mathcal L_n,\qquad
+ \|\ph_n\|^2\le C\mathcal L_n\mathcal E_n+C(1+n)^{\gamma_0},\quad0<\lambda<1.
+\]
+For each $\epsilon>0$, $\log(1+x)\le\sqrt{x}$ gives
+\[
+ \sum_{j=i_0}^n\log(1+C\omega_j\Delta_j\mathcal L_j)
+ \le C\mathcal L_n\Bigl(\sum_{j\ge i_0}\Delta_j\Bigr)^{1/2}.
+\]
+Choose $i_0$ to make the coefficient below $\epsilon$ and absorb the
+finitely many earlier factors. Thus, for all $i\le n$,
+\begin{equation*}
+ \prod_{j=i}^n(1+C\omega_j\Delta_j\mathcal L_j)\le C_\epsilon W_n^\epsilon.
+\end{equation*}
+Iterate the state recursion, keeping its geometric factors, and absorb
+logarithmic powers to obtain
+$X_n\triangleq \max_{j\le n}\|\ph_j\|^2\le C_\epsilon W_n^\epsilon(1+n)^{\gamma_0}$.
+Since $W_n\le C(1+n)(1+X_n)$,
+$X_n\le C_\epsilon(1+n)^{(\gamma_0+\epsilon)/(1-\epsilon)}$.
+Choose $\epsilon<(1-\gamma_0)/2$. With an empty state, the assumed regressor bound suffices.
+\end{proof}
+
+\begin{proof}[Details for Lemma~\ref{lem:burstinfo}]
+On $G_n$ at a selected time with $U^2\ge n^{\gamma_1}$, \eqref{eq:exception} gives $\|\mathbf s_n\|^2=O(n^\gamma)$, $\tr M_n=O(n)$ and $V_n=O(\kappa)$. The next $d$ noise squares sum to at most $4d\sigma^2$, so \eqref{eq:lsidentity} gives $V_{n+j}\le C\kappa$, $0\le j\le d$. As $M_{n+j}\succeq M_0\succ0$, intermediate estimate norms are $O(\sqrt\kappa)$ uniformly in $U$.
+
+The remaining coordinates satisfy $\|\ph_n-u_ne_{p+1}\|^2=\|\mathbf s_n\|^2=O(n^\gamma)$.
+From $P_n^{-1}\succeq cI$, Sherman--Morrison and information monotonicity give
+\[
+ (P_{n+1})_{p+1,p+1}
+ \le e_{p+1}^T(cI+\ph_n\ph_n^T)^{-1}e_{p+1}
+ =\frac{c+\|\mathbf s_n\|^2}{c(c+U^2+\|\mathbf s_n\|^2)}.
+\]
+Thus monotonicity and the energy bound give, uniformly for $1\le j\le d$,
+\begin{equation*}
+ (P_{n+j})_{p+1,p+1}\le C(1+n^\gamma)/U^2,
+ \quad |\widehat b_{1,n+j}-b_1|^2\le C\kappa(1+n^\gamma)/U^2=o(1).
+\end{equation*}
+Later CE denominators stay nonzero uniformly; induction in the plant and CE equations gives
+\begin{equation}\label{eq:burstrows}
+ \|\phc_{n+j}\|^2\le C U^2\kappa^j,
+ \qquad\tr M_{n+j+1}\le C(n+U^2\kappa^j),\quad0\le j<d,
+\end{equation}
+including the physical state bound $\|\mathbf a_N\|^2\le C(U^2\kappa^{d-1}+n^\gamma)
+\le CJ\Lambda$.
+
+Let $X$ have rows $\phc_n^T,\ldots,\phc_{n+d-1}^T$. Finite convolution gives $X=u_n\mathsf R\mathcal H+E_n$, where $\mathsf R$ is lower triangular Toeplitz with $\mathsf R_{ij}\triangleq u_{n+i-j}/u_n$, $1\le j\le i\le d$, and $\|E_n\|^2\le Cn^\gamma$. Its Toeplitz inverse obeys $(\mathsf R^{-1})_{11}=1$ and $(\mathsf R^{-1})_{i1}=-\sum_{j=1}^{i-1}(u_{n+i-j}/u_n)(\mathsf R^{-1})_{j1}$ for $2\le i\le d$. By \eqref{eq:burstrows}, induction gives $(\mathsf R^{-1})_{i1}=O(\kappa^{(i-1)/2})$, hence $\|\mathsf R^{-1}\|^2\le C\kappa^{d-1}$ and
+\begin{equation}\label{eq:burstH}
+ X^T X\succeq cJ\mathcal H^T\mathcal H-Cn^\gamma I,
+ \qquad \mathcal H^T\mathcal H\succeq c\Pi_{\mathcal Q}.
+\end{equation}
+By \eqref{eq:kernel} and Lemma~\ref{lem:stable}, $v^T M_nv\ge an\|v\|^2$ on $\mathcal K$ and $M_n\preceq bnI$ eventually, for localized $a,b>0$. Hence $\underline J I\preceq C(M_n+J\Pi_{\mathcal Q})$. Combining with \eqref{eq:burstH} gives
+$M_N\succeq c(\underline J I+J\Pi_{\mathcal Q})-Cn^\gamma I$.
+Since $n^\gamma=o(\underline J)$ by \eqref{eq:scales}, this proves the matrix lower bound in \eqref{eq:burstinfo}; \eqref{eq:burstrows} gives the other bounds. For $p=0$, $\mathcal H=I_q$ and $[\kappa+\log(e+J\Lambda)]/J\to0$.
+\end{proof}
+
+\begin{proof}[Proof of Lemma~\ref{lem:transition}]
+Condition on $\F_N$ and $G_n$, and reset time $N$ to zero. Using the scales in~\eqref{eq:burstscale}, Lemma~\ref{lem:burstinfo} gives
+\begin{equation*}
+ M_0\succeq c(\underline J I+J\Pi_{\mathcal Q}),\quad V_0\le C\kappa,\quad
+ \|\mathbf a_0\|^2\le CJ\Lambda,\quad
+ \|\chi_0^{\mathcal K}\|^2\le Cn^\gamma=o(\underline J).
+\end{equation*}
+Choose $0<a<\gamma_1-\tfrac12$. By \eqref{eq:weightedgram} and \eqref{eq:exception}, earlier cross terms are $O(n^{1/2+a}+n^{(1+\gamma)/2})$; the next $d$ steps add $O(\sqrt{n^\gamma J\Lambda})$. Since $\gamma_1>(1+\gamma)/2$,
+\begin{equation*} \|Z_0\|/J\to0.\end{equation*}
+
+Choose a common Lyapunov ball. After parameter exit, use true auxiliary feedback while retaining LS updates; paths agree until exit. Set $S_t\triangleq M_t-M_0$. With arbitrarily high fixed conditional probability, for all $t\le T$:
+\begin{equation}\label{eq:onenoise}
+ \sum_{j\le t}w_j^2\le C(t+R),\qquad
+ \Pi_{\mathcal K} S_t\Pi_{\mathcal K}\succeq
+ \{ct-C(R+n^\gamma)\}\Pi_{\mathcal K}.
+\end{equation}
+Decompose $\phc_j=\phc_j^h+f_j$ under the auxiliary coefficient sequence. Common contraction and the direct kernel estimate
+\eqref{eq:kernelhom} yield
+\begin{equation}\label{eq:onehom}
+ \sum_{j<t}\|\phc_j^h\|^2\le CJ\Lambda,\quad
+ \sum_{j<t}\|\Pi_{\mathcal K}\phc_j^h\|^2\le Cn^\gamma,\quad
+ \sum_{j<t}\|f_j\|^2\le C(t+R).
+\end{equation}
+From $M_0^{-1}\preceq C(J^{-1}\Pi_{\mathcal Q}+\underline J^{-1}\Pi_{\mathcal K})$ and \eqref{eq:onehom},
+$\sum\phc_j^h(\phc_j^h)^T\preceq C\Lambda M_0$. Together with \eqref{eq:onenoise}:
+\begin{equation}\label{eq:onesandwich}
+ c_*\left(\underline J+\frac{t}{\Lambda}\right)I
+ \preceq M_t
+ \preceq(1+C\Lambda)M_0+C(t+R)I.
+\end{equation}
+Indeed $S_t\succeq0$, $\|S_t\|\le CJ\Lambda$ and $v_{\mathcal K}^T S_tv_{\mathcal K}\le2v^T S_tv+2CJ\Lambda\|v_{\mathcal Q}\|^2$. Multiply by a sufficiently small $\Lambda^{-1}$: $J\Pi_{\mathcal Q}$ absorbs the cross term, $n^\gamma+R=o(\underline J)$ the noise deficit, and $t\le J\Lambda$ controls $t/\Lambda$ on $\mathcal Q$. Homogeneous and forced energies give the upper bound.
+
+As $M_0\succeq c\underline J I$, the sandwich and $\log(1+x)\le x$ give
+$\log(\det M_t/\det M_0)\le C[\Lambda+(t+R)/\underline J]$.
+Writing $\tau$ for parameter exit, apply \eqref{eq:LSA4} through $T\wedge\tau$, using $t/(\underline J+t/\Lambda)\le\Lambda$:
+\begin{equation}\label{eq:oneparameter}
+ \sup_{t\le T\wedge\tau}\|\etac_t\|^2
+ \le\sup_{t\le T\wedge\tau}\frac{V_t}{\lambda_{\min}(M_t)}
+ \le C\frac{\kappa+R+\Lambda}{\underline J}=o(1)
+\end{equation}
+by \eqref{eq:scales}. Thus no exit occurs, the paths coincide, and $\lambda_{\min}(M_T)\ge cJ$. Stability gives $\E(\|\mathbf a_T\|^2\mid\F_0)\le C(1+\rho^{2T}J\Lambda)$; the determinant bound in \eqref{eq:onesandwich} gives
+\begin{equation*}
+ \frac{V_T+\|\mathbf a_T\|^2}{J}=o_{\Prob}(1),\qquad
+ \frac{1+\log(1+(1+\|M_T\|)/\lambda_{\min}(M_T))}{J}=o_{\Prob}(1).
+\end{equation*}
+
+
+By \eqref{eq:decomp}, write $\psi=\psi^d+\psi^\varepsilon$, driven respectively by the reference with recorded history and the residual with zero history. Thus $\psi^d$ is $\F_0$-measurable, and \eqref{eq:oneparameter} gives
+$\sum_{t<T}\|\psi_t^d\|^2\le CJ\Lambda$ and $\sum_{t<T}\|\psi_t^\varepsilon\|^2\le C\delta_n^2J\Lambda$, where $\delta_n^2\triangleq\sup_{t\le T}\|\etac_t\|^2=o(1)$.
+Similarly, $g=g^h+g^0$, where $g^0$ is the noise response with zero initial state. Their energies are $O(n^\gamma)$ and $O(J\Lambda)$, respectively. For initially known $\psi^d$, \eqref{eq:weightedgram} yields
+$\E(\|\sum_{t<T}g_t^0(\psi_t^d)^T\|_F^2\mid\F_0)\le CJ\Lambda$; Cauchy--Schwarz then gives
+\begin{equation*}
+ \frac{\|Z_T\|}{J}\le o(1)+O_{\Prob}\!\left(\sqrt{\frac{\Lambda}{J}}\right)
+ +C\sqrt{\frac{n^\gamma\Lambda}{J}}
+ +C\Lambda\delta_n\longrightarrow0.
+\end{equation*}
+By \eqref{eq:oneparameter} and \eqref{eq:scales}, $\Lambda\delta_n\to0$. Thus \eqref{eq:entry} holds with $K_0=1$ and, for sufficiently small fixed failure budgets, conditional probability at least $3/4$.
+\end{proof}
+\section{Local Stability for FIR Models}\label{sec:fir}
+For $p=0$, the input-history recursion contracts in a small stability ball. After the initial input history decays, it suffices to prove nonexit for bounded histories.
+
+\begin{lemma}\label{lem:firmaxt}
+Let $A_0\succ0$, $H_i\succeq0$ be $\F_0$-measurable and define $A_t\triangleq A_0+\sum_{i=1}^tH_i$, $I_t\triangleq A_0+\sum_{i=1}^tD_i$ for predictable $D_i$. Suppose
+\begin{equation*}
+ 0\preceq D_i\preceq KH_i,\qquad I_t\succeq cA_t\quad\forall i,t
+\end{equation*}
+with fixed $K\ge1,c>0$. Let $N_0=0$ and $N_t$ be a vector martingale whose increments satisfy, for every predictable vector $a$,
+$\E(|a^T(N_i-N_{i-1})|^s\mid\F_{i-1})\le K_s(a^T D_i a)^{s/2}$, $s>2$. Then
+\begin{equation*}
+ \E\left[\sup_t\|A_0^{1/2}I_t^{-1}N_t\|^s\mid\F_0\right]\le C.
+\end{equation*}
+Consequently, if $A_0\succeq LI$, the moment of $\sup_t\|I_t^{-1}N_t\|$ of order $s$ is $O(L^{-s/2})$. Both constants are independent of the condition number of $A_0$.
+\end{lemma}
+\begin{proof}
+Normalize by $A_0^{-1/2}$ ($A_0=I$) and induct on $d$ for a finite $\F_0$-measurable horizon $T$ (scalar base: dyadic maximal inequality). Partition $I_t=\begin{psmallmatrix}E_t&C_t\\C_t^T&d_t\end{psmallmatrix}$ and $N_t=(N_{E,t}^T,N_{d,t})^T$ after coordinate $d-1$. For initially known $r$, comparison gives
+$\E(\|E_r^{-1/2}N_{E,r}\|^s\mid\F_0)\le C$.
+The restarted envelope $E_r+\sum_{r<i\le t}(H_i)_{EE}$ is at most
+$K(A_t)_{EE}$, so comparison holds with constant $c/K$. Induction gives
+$\E[\sup_{t\ge r}\|E_r^{1/2}E_t^{-1}(N_{E,t}-N_{E,r})\|^s\mid\F_r]\le C$.
+Thus, for $\F_r$-measurable $a_r$ and an initially measurable scalar $x$ with
+$a_r^T E_r^{-1}a_r\le x$,
+\begin{equation}\label{eq:subsp}
+ \E\left[\sup_{t\ge r}|a_r^T E_t^{-1}N_{E,t}|^s\Bigm|\F_0\right]
+ \le Cx^{s/2}.
+\end{equation}
+For the past term use $E_t\succeq E_r$; for the future term condition on $\F_r$.
+
+With $C_0=0$, put $b_t\triangleq\sum_{i\le t}(H_i)_{dd}$ and partition $[0,b_T]$ into intervals. For a mass interval $J$, define
+\[
+ \omega_i(J)\triangleq\frac{|J\cap(b_{i-1},b_i]|}{(H_i)_{dd}},\qquad
+ C_J\triangleq\left(\sum_i\omega_i(J)D_i\right)_{Ed},
+\]
+with zero weight for a zero denominator, and let $r_J$ be its last active index. These indices are initially known.
+Schur positivity and $D_i\preceq KH_i$ imply
+$C_J^T E_{r_J}^{-1}C_J\le K|J|$.
+At dyadic level $k$, there are $2^k$ intervals of length $2^{-k}b_T$. By \eqref{eq:subsp}, the $L^s$ norm of their maximum is at most $C\sqrt{b_T}\,2^{k(1/s-1/2)}$. Each prefix $[0,b_t]$ uses at most one interval per level, so Minkowski gives
+\[
+ \bigl\|\sup_{t\le T}|C_t^T E_t^{-1}N_{E,t}|\bigr\|_{L^s}
+ \le C\sqrt{b_T}\sum_{k\ge0}2^{k(1/s-1/2)}\le C\sqrt{b_T}.
+\]
+
+
+Group times by initially known levels $2^k\le\lambda_{\min}(A_t)<2^{k+1}$. At the last index, choose a unit eigenvector for $\lambda_{\min}(A_t)$ as final coordinate. Monotonicity bounds its quadratic form by $2^{k+1}$ throughout the level. In $(I_t^{-1}N_t)_d=(N_{d,t}-C_t^TE_t^{-1}N_{E,t})/(d_t-C_t^TE_t^{-1}C_t)$, the numerator terms have maximal $s$th moments $O(2^{ks/2})$ and the denominator is at least $c2^k$. Thus the last coordinate has maximal moment $O(2^{-ks/2})$. Equation~\eqref{eq:subsp} at the first index $r$, with coordinate vectors and $x=(c2^k)^{-1}$, bounds $E_t^{-1}N_{E,t}$ likewise. Since $\|E_t^{-1}C_t\|^2\le d_t/\lambda_{\min}(E_t)\le2K/c$, block inversion gives the same bound for all coordinates. Sum over $k$ and let the horizon grow.
+\end{proof}
+
+\begin{lemma}\label{lem:leverage}
+Let $A_j\triangleq P_0^{-1}+\sum_{i<j}H_i$, with $P_0^{-1}\succeq LI$ and
+$H_i\succeq0$, $\tr H_i\le K_H\le L$. For $a>1$ and
+$\lambda_j\triangleq\tr(A_j^{-1}H_j)$,
+\begin{equation}\label{eq:leverage}
+ \sum_{j\ge0}\lambda_j^a\le C_{a,d}(K_H/L)^{a-1}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Omit zero increments. Put $r\triangleq a-1$, $A\triangleq A_j$, $H\triangleq H_j$ and
+$X_t\triangleq A+tH$, $0\le t\le1$. Since $H\preceq K_HI\preceq A$,
+$\tr(HX_t^{-1})\ge\lambda_j/(1+t)$. In an eigenbasis of $X_t$,
+scalar Jensen with weights $H_{ii}/\tr H$ gives
+\[
+ -\frac{d}{dt}\tr X_t^{-r}
+ =r\tr(HX_t^{-a})
+ \ge r(\tr H)^{1-a}[\tr(HX_t^{-1})]^a
+ \ge rK_H^{1-a}\lambda_j^a(1+t)^{-a}.
+\]
+Integration and telescoping yield
+\[
+ (1-2^{1-a})K_H^{1-a}\sum_{j<N}\lambda_j^a
+ \le\tr A_0^{1-a}-\tr A_N^{1-a}\le dL^{1-a}.
+\]
+Let $N\to\infty$ to obtain \eqref{eq:leverage}.
+\end{proof}
+
+Write $u_n^r\triangleq[B^{-1}y^*]_{n+1}$ with zero history and $\ph_n^r\triangleq(u_n^r,\dots,u_{n-q+1}^r)^T$. Fix $\rho\in(0,1)$ larger than the decay rates of the inverse filter and set
+\begin{equation*}
+ H_n\triangleq\sum_{k\ge0}\rho^k\ph_{n-k}^r(\ph_{n-k}^r)^T,
+ \qquad U_n\triangleq\sum_{j<n}\ph_j^r(\ph_j^r)^T,
+ \qquad A_n\triangleq P_0^{-1}+\sum_{j<n}H_j.
+\end{equation*}
+Set $\lambda_n\triangleq\tr(A_n^{-1}H_n)$. These matrices are initially known, with $U_n\preceq\sum_{j<n}H_j\preceq(1-\rho)^{-1}U_n$ and $\tr H_n\le K_H$. By Lemma~\ref{lem:leverage}, $\sum_n\lambda_n^a\le CL^{1-a}$ for $1<a<2$.
+
+\begin{lemma}\label{lem:firbounded}
+Fix the plant, bounded reference, uniform conditional $s$th moment bound and a fixed bound $\|\mathbf s_0\|\le M_*$. For some $\delta>0$, if $P_0^{-1}\succeq LI$ and $V_0/L\le\delta^2/16$, then
+\begin{equation}\label{eq:firnonexit}
+ \Prob\left(\sup_{t\ge0}\|\thh_t-\theta\|\ge\delta\ \middle|\F_0\right)
+ \le CL^{-(s-2)/4}
+\end{equation}
+for all sufficiently large $L$. On nonexit, $r_N=O(N)$ and $R_N=O(\log N)$ almost surely.
+\end{lemma}
+\begin{proof}
+For $q=1$, the history is empty and $\eta_n=0$. Write $B_\vartheta(z)\triangleq\sum_{j=1}^q\vartheta_jz^{j-1}$ and choose a small ball with common contraction norm $\|\cdot\|_*$, factor $\kappa_0<1$. Denote the reference response with fixed coefficients and zero history by $\widetilde\ph_n$ and set $\eta_n\triangleq\ph_n-\widetilde\ph_n$.
+Bounds for fixed filters give
+\begin{align}
+ \|\mathbf s_n\|&\le C(\kappa_0^n\|\mathbf s_0\|+Y),\label{eq:firhistory}\\
+ \widetilde\ph_n\widetilde\ph_n^T&\preceq CH_n,\qquad
+ (\widetilde\ph_n-\ph_n^r)(\widetilde\ph_n-\ph_n^r)^T\preceq C\delta^2H_n,\label{eq:firfro}\\
+ \|\eta_0\|_*&\le C\|\mathbf s_0\|,\qquad
+ \|\eta_{n+1}\|_*\le\kappa_0\|\eta_n\|_*+
+ C\sqrt{K_n^T H_nK_n}(|w_{n+1}|+|\varepsilon_n|),\label{eq:firdiff}
+\end{align}
+where $K_n\triangleq P_{n+1}\ph_n$ and, before parameter exit,
+$|\varepsilon_n|\le C\delta(\kappa_0^n\|\mathbf s_0\|+Y)$.
+Fix $0<c_0\le(1-\rho)/32$. We construct initially measurable $\overline H_n\succeq0$, a fixed $K\ge1$
+and stopping times $T_\theta\triangleq\inf\{n:\|\thh_n-\theta\|\ge\delta\}$ and $T_w$ such that, for $S\triangleq T_w\wedge T_\theta$,
+\begin{equation*}
+ \Prob(T_w<\infty\mid\F_0)\le CL^{-(s-2)/4},\;
+ \ph_n\ph_n^T\preceq K\overline H_n,\ n<S,\quad
+ P_n^{-1}\succeq2c_0\bigl(P_0^{-1}+\sum_{j<n}\overline H_j\bigr),\ n\le S.
+\end{equation*}
+
+Common Lyapunov decay of $B_\vartheta^{-1}$ and its derivatives gives \eqref{eq:firhistory}. Apply weighted Cauchy--Schwarz to $\widetilde\ph_n=[(B/B_{\thh_n})\ph^r]_n$ for \eqref{eq:firfro}. Subtract successive frozen recursions and insert the RLS increment $K_n(w_{n+1}+\varepsilon_n)$ for \eqref{eq:firdiff}; reference forcing cancels.
+
+On $P_n^{-1}\succeq c_0A_n$, monotonicity gives $A_n^{1/2}P_{n+1}A_n^{1/2}\preceq c_0^{-1}I$, hence $P_{n+1}A_nP_{n+1}\preceq c_0^{-2}A_n^{-1}$. With $H_n\preceq\lambda_nA_n$, \eqref{eq:firfro} gives
+\begin{equation}\label{eq:firgain}
+ \sqrt{K_n^T H_nK_n}
+ \le C\sqrt{\lambda_n}\,\|A_n^{-1/2}\ph_n\|
+ \le C\left(\lambda_n+\sqrt{\lambda_n/L}\,\|\eta_n\|\right).
+\end{equation}
+Take $a_*\triangleq(s+2)/(4s)\in(1/s,1/2)$ and $T_w\triangleq\inf\{n+1:|w_{n+1}|>\lambda_n^{-a_*}\}$, with infinite threshold for $\lambda_n=0$. Then $a_*s-1=(s-2)/4$. Conditional Markov and Lemma~\ref{lem:leverage} give
+\[
+ \Prob(T_w<\infty\mid\F_0)\le K_s\sum_n\lambda_n^{a_*s}
+ \le CL^{1-a_*s}=CL^{-(s-2)/4}.
+\]
+For $n+1<S$, \eqref{eq:firdiff}--\eqref{eq:firgain} bound the coefficient of $\|\eta_n\|_*$ by $\kappa_0+C\lambda_n^{1/2-a_*}/\sqrt L\le\kappa_0+CL^{a_*-1}$, using $\lambda_n\le K_H/L$ and $a_*<1/2$. Choose $\kappa_0<\kappa_1<1$ and $L$ large; then
+\[
+ \|\eta_{n+1}\|_*\le\kappa_1\|\eta_n\|_*+C_{M_*}\lambda_n^{1-a_*}.
+\]
+Define an initially known scalar envelope $\zeta_0\triangleq C_{M_*}$, $\zeta_{n+1}\triangleq\kappa_1\zeta_n+C_{M_*}\lambda_n^{1-a_*}$. Young's inequality for stable convolution and Lemma~\ref{lem:leverage} with $a=2-2a_*\in(1,2)$ show
+\begin{equation*}
+ D_\zeta\triangleq \sum_n\zeta_n^2\le C(1+\sum_n\lambda_n^{2-2a_*})\le C.
+\end{equation*}
+Set $\overline H_n\triangleq H_n+\zeta_n^2I$. The provisional information bound gives $\|\eta_n\|\le\zeta_n$ and $\ph_n\ph_n^T\preceq K\overline H_n$; the decomposition $\ph_n=\ph_n^r+(\widetilde\ph_n-\ph_n^r)+\eta_n$ conversely gives
+\[
+ P_n^{-1}\succeq P_0^{-1}+\tfrac14 U_n-2D_\zeta I,
+ \quad P_0^{-1}+\sum_{j<n}\overline H_j\preceq P_0^{-1}+(1-\rho)^{-1}U_n+D_\zeta I.
+\]
+Since $D_\zeta=O(1)$, $P_0^{-1}\succeq LI$ absorbs the loss, giving the $2c_0$ envelope through its final index.
+
+Extend stopped information increments by $K\overline H_n$ and martingale increments by zero, predictably retaining the update causing exit. Lemma~\ref{lem:firmaxt} gives $\E[\sup_{t\le S}\|P_tN_t\|^s\mid\F_0]\le CL^{-s/2}$ for $N_t\triangleq\sum_{j<t}\ph_jw_{j+1}$. The normal equation yields $\|\thh_t-\theta\|\le\sqrt{V_0/L}+\|P_tN_t\|$; Markov and the envelope bound prove \eqref{eq:firnonexit}. On nonexit, the input recursion bounds $\ph_n$, so $r_N=O(N)$, $\sup_n h_n<\infty$, and~\eqref{eq:lslog} gives $R_N=O(\log N)$.
+\end{proof}
+
+
+
+% References
+\begin{thebibliography}{10}
+
+\bibitem{AW73}
+K.~J. {\AA}str{\"o}m and B. Wittenmark.
+\newblock On self tuning regulators.
+\newblock {\em Automatica}, 9(2):185--199, 1973.
+
+\bibitem{Bercu95}
+B. Bercu.
+\newblock Weighted estimation and tracking for {ARMAX} models.
+\newblock {\em SIAM J. Control Optim.}, 33(1):89--106, 1995.
+
+\bibitem{BV10PE}
+B. Bercu and V. Vazquez.
+\newblock On the usefulness of persistent excitation in {ARX} adaptive
+  tracking.
+\newblock {\em Int. J. Control}, 83(6):1145--1154, 2010.
+
+\bibitem{Chen84}
+H.~F. Chen.
+\newblock Recursive system identification and adaptive control by use of the
+  modified least squares algorithm.
+\newblock {\em SIAM J. Control Optim.}, 22(5):758--776, 1984.
+
+\bibitem{CG87}
+H.~F. Chen and L. Guo.
+\newblock Asymptotically optimal adaptive control with consistent parameter
+  estimates.
+\newblock {\em SIAM J. Control Optim.}, 25(3):558--575, 1987.
+
+\bibitem{GRC80}
+G.~C. Goodwin, P.~J. Ramadge, and P.~E. Caines.
+\newblock Discrete time stochastic adaptive control.
+\newblock {\em SIAM J. Control Optim.}, 19(6):829--853, 1981.
+
+\bibitem{Guo94}
+L. Guo.
+\newblock Further results on least squares based adaptive minimum variance
+  control.
+\newblock {\em SIAM J. Control Optim.}, 32(1):187--212, 1994.
+
+\bibitem{Guo95}
+L. Guo.
+\newblock Convergence and logarithm laws of self-tuning regulators.
+\newblock {\em Automatica}, 31(3):435--450, 1995.
+
+\bibitem{GC91}
+L. Guo and H.~F. Chen.
+\newblock The {{\AA}str{\"o}m--Wittenmark} self-tuning regulator revisited and
+  {ELS}-based adaptive trackers.
+\newblock {\em IEEE Trans. Automat. Control}, 36(7):802--812, 1991.
+
+\bibitem{HallHeyde80}
+P. Hall and C.~C. Heyde.
+\newblock {\em Martingale Limit Theory and Its Application}.
+\newblock Academic Press, New York, 1980.
+
+\bibitem{Kumar90}
+P.~R. Kumar.
+\newblock Convergence of adaptive control schemes using least-squares parameter
+  estimates.
+\newblock {\em IEEE Trans. Automat. Control}, 35(4):416--424, 1990.
+
+\bibitem{LW82}
+T.~L. Lai and C.~Z. Wei.
+\newblock Least squares estimates in stochastic regression models with
+  applications to identification and control of dynamic systems.
+\newblock {\em Ann. Statist.}, 10(1):154--166, 1982.
+
+\bibitem{LW87}
+T.~L. Lai and C.~Z. Wei.
+\newblock Asymptotically efficient self-tuning regulators.
+\newblock {\em SIAM J. Control Optim.}, 25(2):466--481, 1987.
+
+\bibitem{SG82}
+K.~S. Sin and G.~C. Goodwin.
+\newblock Stochastic adaptive control using a modified least squares algorithm.
+\newblock {\em Automatica}, 18(3):315--321, 1982.
+
+\bibitem{Singh24}
+R. Singh, A. Mete, A. Kar, and P.~R. Kumar.
+\newblock Finite time logarithmic regret bounds for self-tuning regulation.
+\newblock In {\em Proc. 41st International Conference on Machine Learning},
+  volume 235 of {\em Proceedings of Machine Learning Research}, pages
+  45571--45636. PMLR, 2024.
+\newblock \url{https://proceedings.mlr.press/v235/singh24b.html}.
+
+\bibitem{Tropp11}
+J.~A. Tropp.
+\newblock {Freedman}'s inequality for matrix martingales.
+\newblock {\em Electron. Commun. Probab.}, 16:262--270, 2011.
+
+\bibitem{ZG21}
+Y. Zhang and L. Guo.
+\newblock Convergence of self-tuning regulators under conditional
+  heteroscedastic noises with unknown high-frequency gain.
+\newblock {\em J. Syst. Sci. Complex.}, 34(1):236--250, 2021.
+
+\end{thebibliography}
+\end{document}

@@ -1,0 +1,29 @@
+{
+  "title": "LS-Based Self-Tuning Regulation with Unknown Input Gain for Arbitrary Bounded References",
+  "author": "Zhaobo Liu",
+  "manuscript_version": "2026-10-24",
+  "pdf_pages": 20,
+  "files": [
+    {
+      "path": "main.pdf",
+      "bytes": 489432,
+      "sha256": "07573d71f7609ff8ae03d2fe6617428388bf2db7ecfdce08a24f6227ab465567"
+    },
+    {
+      "path": "main.tex",
+      "bytes": 80332,
+      "sha256": "fd1344d24dd2b596bc6818a031bb7e14f4971016e1ce34c899b93e5a36648baa"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1018,
+      "sha256": "407cef1b200b1c085dcf209bcabba64bfceaa4b7d974d632eca6a7a3ef4f8e38"
+    }
+  ],
+  "companion_formalization": {
+    "repository": "https://github.com/liuzhaobo-site/ls-str-lean",
+    "release": "proofs-2026-10-24",
+    "manuscript_snapshot_sha256": "417ecd3ac5f134c53036d217042a727e0f07b3fff4ac31fcaa0c4939cae763f0",
+    "correspondence_for_later_manuscript_revisions": "NOT_RECHECKED"
+  }
+}
