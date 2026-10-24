@@ -2,6 +2,8 @@
 
 Formalization archive for **LS-Based Self-Tuning Regulation with Unknown Input Gain for Arbitrary Bounded References** by Zhaobo Liu.
 
+[Paper page](https://liuzhaobo-site.github.io/ls-str-2026.html) · [Zenodo DOI](https://doi.org/10.5281/zenodo.23608534)
+
 **[Read the current manuscript](paper/main.pdf)** · [LaTeX source](paper/main.tex) · [Manuscript ZIP](paper/LS_STR_manuscript-2026-10-24.zip)
 
 Manuscript version: **2026-10-24**. This revision is later than the manuscript snapshot in the proof archive below; its correspondence with the Lean code has not been rechecked.
